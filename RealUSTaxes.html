@@ -2,7 +2,13 @@
 <!--[if lt IE 7]>      <html class="no-js lt-ie9 lt-ie8 lt-ie7"> <![endif]-->
 <!--[if IE 7]>         <html class="no-js lt-ie9 lt-ie8"> <![endif]-->
 <!--[if IE 8]>         <html class="no-js lt-ie9"> <![endif]-->
-<!--[if gt IE 8]><!--> <html class="no-js"> <!--<![endif]-->
+<!--[if gt IE 8]><!--> <!--<![endif]-->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.3/Chart.bundle.js" 
+        integrity="sha256-8zyeSXm+yTvzUN1VgAOinFgaVFEFTyYzWShOy9w7WoQ=" 
+        crossorigin="anonymous">
+</script>
+<script src="RealUSTaxes.js">
+</script>
     <head>
         <meta charset="utf-8">
         <meta http-equiv="X-UA-Compatible" content="IE=edge">
@@ -16,10 +22,12 @@
             <p class="browsehappy">You are using an <strong>outdated</strong> browser. Please <a href="#">upgrade your browser</a> to improve your experience.</p>
         <![endif]-->
         Learn about income taxes in the U.S.
-        
-        Income in 2019 dollars: <input type="number" name="income"><br>
-        <button onclick="alert('Hello')">Show</button>
+        <form id="incomeReader" name="incomeReader" action="" method="POST" enctype="application/x-www-form-urlencoded">
+        <br>
+        Income in thousands of 2019 dollars: <input type="number" name="income" id="income" onblur="updateIncomeTaxInfo()"> ,000 <br>
+        </form>
 
-        <script src="" async defer></script>
+        <canvas id = "incomeTaxGraph" width = "600" height = "500"> </canvas>
+
     </body>
 </html>
