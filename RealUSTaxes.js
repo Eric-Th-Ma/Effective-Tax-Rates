@@ -10,11 +10,48 @@ function calculateTax(income, taxBracketsData) {
 
 function updateIncomeTaxInfo() {
     var income = document.incomeReader.income.value * 1000;
-    var taxesStartYear = 1987;
-    var yearsDollarValue = [0.437,0.452,0.471,0.493,0.520,0.542,0.559,0.575,0.590,0.607,0.625,0.639,0.649,0.663,0.686,0.705,0.716,0.733,0.752,0.778,0.803,0.826,0.857,0.854,0.869,0.896,0.914,0.928,0.943,0.944,0.956,0.976,1]; // 2002 - 2019
+    var taxesStartYear = 1977;
+    var yearsDollarValue = [0.2267,0.2413,0.2597,0.2890,0.3280,0.3620,0.3843,0.3965,0.4138,0.4284,0.437,0.452,0.471,0.493,0.520,0.542,0.559,0.575,0.590,0.607,0.625,0.639,0.649,0.663,0.686,0.705,0.716,0.733,0.752,0.778,0.803,0.826,0.857,0.854,0.869,0.896,0.914,0.928,0.943,0.944,0.956,0.976,1]; // 2002 - 2019
+    // personal exemptions: https://www.taxpolicycenter.org/sites/default/files/legacy/taxfacts/content/pdf/historical_parameters.pdf
+    // tax brackets: https://taxfoundation.org/us-federal-individual-income-tax-rates-history-1913-2013-nominal-and-inflation-adjusted-brackets/
+    // standard deduction: 
     var yearsTaxData = [
         // Within each tax bracket we have the tax bracket size and rate [size,rate]
         // ovarall we have [standard deduction, personal exemption, lowest tax bracket ... highest tax bracket]
+        // [[2540,0],[600,0],[1800,0.11],[15000, 0.15],[10200,0.28],[27000,0.35],[Number.MAX_SAFE_INTEGER,0.36]], // 1953
+        // [[2540,0],[600,0],[1800,0.11],[15000, 0.15],[10200,0.28],[27000,0.35],[Number.MAX_SAFE_INTEGER,0.36]], // 1954
+        // [[2540,0],[600,0],[1800,0.11],[15000, 0.15],[10200,0.28],[27000,0.35],[Number.MAX_SAFE_INTEGER,0.36]], // 1955
+        // [[2540,0],[600,0],[1800,0.11],[15000, 0.15],[10200,0.28],[27000,0.35],[Number.MAX_SAFE_INTEGER,0.36]], // 1956
+        // [[2540,0],[600,0],[1800,0.11],[15000, 0.15],[10200,0.28],[27000,0.35],[Number.MAX_SAFE_INTEGER,0.36]], // 1957
+        // [[2540,0],[600,0],[1800,0.11],[15000, 0.15],[10200,0.28],[27000,0.35],[Number.MAX_SAFE_INTEGER,0.36]], // 1958
+        // [[2540,0],[600,0],[1800,0.11],[15000, 0.15],[10200,0.28],[27000,0.35],[Number.MAX_SAFE_INTEGER,0.36]], // 1959
+        // [[2540,0],[600,0],[1800,0.11],[15000, 0.15],[10200,0.28],[27000,0.35],[Number.MAX_SAFE_INTEGER,0.36]], // 1960
+        // [[2540,0],[600,0],[1800,0.11],[15000, 0.15],[10200,0.28],[27000,0.35],[Number.MAX_SAFE_INTEGER,0.36]], // 1961
+        // [[2540,0],[600,0],[1800,0.11],[15000, 0.15],[10200,0.28],[27000,0.35],[Number.MAX_SAFE_INTEGER,0.36]], // 1962
+        // [[2540,0],[600,0],[1800,0.11],[15000, 0.15],[10200,0.28],[27000,0.35],[Number.MAX_SAFE_INTEGER,0.36]], // 1963
+        // [[2540,0],[600,0],[1800,0.11],[15000, 0.15],[10200,0.28],[27000,0.35],[Number.MAX_SAFE_INTEGER,0.36]], // 1964
+        // [[2540,0],[600,0],[1800,0.11],[15000, 0.15],[10200,0.28],[27000,0.35],[Number.MAX_SAFE_INTEGER,0.36]], // 1965
+        // [[2540,0],[600,0],[1800,0.11],[15000, 0.15],[10200,0.28],[27000,0.35],[Number.MAX_SAFE_INTEGER,0.36]], // 1966
+        // [[2540,0],[600,0],[1800,0.11],[15000, 0.15],[10200,0.28],[27000,0.35],[Number.MAX_SAFE_INTEGER,0.36]], // 1967
+        // [[2540,0],[600,0],[1800,0.11],[15000, 0.15],[10200,0.28],[27000,0.35],[Number.MAX_SAFE_INTEGER,0.36]], // 1968
+        // [[2540,0],[600,0],[1800,0.11],[15000, 0.15],[10200,0.28],[27000,0.35],[Number.MAX_SAFE_INTEGER,0.36]], // 1969
+        // [[2540,0],[625,0],[1800,0.11],[15000, 0.15],[10200,0.28],[27000,0.35],[Number.MAX_SAFE_INTEGER,0.36]], // 1970
+        // [[2540,0],[675,0],[1800,0.11],[15000, 0.15],[10200,0.28],[27000,0.35],[Number.MAX_SAFE_INTEGER,0.36]], // 1971
+        // [[2540,0],[750,0],[1800,0.11],[15000, 0.15],[10200,0.28],[27000,0.35],[Number.MAX_SAFE_INTEGER,0.36]], // 1972
+        // [[2540,0],[750,0],[1800,0.11],[15000, 0.15],[10200,0.28],[27000,0.35],[Number.MAX_SAFE_INTEGER,0.36]], // 1973
+        // [[2540,0],[750,0],[1800,0.11],[15000, 0.15],[10200,0.28],[27000,0.35],[Number.MAX_SAFE_INTEGER,0.36]], // 1974
+        // [[2540,0],[750,0],[1800,0.11],[15000, 0.15],[10200,0.28],[27000,0.35],[Number.MAX_SAFE_INTEGER,0.36]], // 1975
+        // [[2540,0],[750,0],[1800,0.11],[15000, 0.15],[10200,0.28],[27000,0.35],[Number.MAX_SAFE_INTEGER,0.36]], // 1976
+        [[2200,0],[750,0],[500,0.14],[1000, 0.16],[2100,0.19],[2000,0.21],[4000,0.25],[4000,0.29],[4000,0.34],[4000,0.38],[10000,0.45],[6000,0.5],[6000,0.55],[6000,0.6],[20000,0.64],[10000,0.66],[20000,0.68],[Number.MAX_SAFE_INTEGER,0.7]], // 1977
+        [[2200,0],[750,0],[500,0.14],[1000, 0.16],[2100,0.19],[2000,0.21],[4000,0.25],[4000,0.29],[4000,0.34],[4000,0.38],[10000,0.45],[6000,0.5],[6000,0.55],[6000,0.6],[20000,0.64],[10000,0.66],[20000,0.68],[Number.MAX_SAFE_INTEGER,0.7]], // 1978
+        [[2300,0],[1000,0],[1100,0.14],[1000, 0.16],[2100,0.18],[2000,0.19],[2300,0.21],[2100,0.24],[2100,0.26],[3200,0.3],[5300,0.34],[5300,0.39],[5300,0.44],[7400,0.49],[13800,0.55],[26500,0.63],[26500,0.68],[Number.MAX_SAFE_INTEGER,0.7]], // 1979
+        [[2300,0],[1000,0],[1100,0.14],[1000, 0.16],[2100,0.18],[2000,0.19],[2300,0.21],[2100,0.24],[2100,0.26],[3200,0.3],[5300,0.34],[5300,0.39],[5300,0.44],[7400,0.49],[13800,0.55],[26500,0.63],[26500,0.68],[Number.MAX_SAFE_INTEGER,0.7]], // 1980
+        [[2300,0],[1000,0],[1100,0.14],[1000, 0.16],[2100,0.16],[2000,0.19],[2300,0.21],[2100,0.24],[2100,0.26],[3200,0.3],[5300,0.34],[5300,0.39],[5300,0.44],[7400,0.49],[13800,0.55],[26500,0.63],[26500,0.68],[Number.MAX_SAFE_INTEGER,0.7]], // 1981
+        [[2300,0],[1000,0],[1100,0.12],[1000, 0.14],[2100,0.16],[2000,0.17],[2300,0.19],[2100,0.22],[2100,0.23],[3200,0.27],[5300,0.31],[5300,0.35],[5300,0.4],[7400,0.44],[Number.MAX_SAFE_INTEGER,0.5]], // 1982
+        [[2300,0],[1000,0],[1100,0.11],[1000, 0.13],[2100,0.15],[2000,0.15],[2300,0.17],[2100,0.19],[2100,0.21],[3200,0.24],[5300,0.28],[5300,0.32],[5300,0.36],[7400,0.4],[13800,0.45],[Number.MAX_SAFE_INTEGER,0.5]], // 1983
+        [[2300,0],[1000,0],[1100,0.11],[1000, 0.12],[2100,0.14],[2000,0.15],[2300,0.16],[2100,0.18],[2100,0.2],[3200,0.23],[5300,0.26],[5300,0.3],[5300,0.34],[7400,0.38],[13800,0.42],[26500,0.48],[Number.MAX_SAFE_INTEGER,0.5]], // 1984
+        [[2390,0],[1040,0],[1150,0.11],[1040, 0.12],[2180,0.14],[2090,0.15],[2390,0.16],[2190,0.18],[2180,0.2],[3330,0.23],[5520,0.26],[5510,0.3],[5520,0.34],[7700,0.38],[14360,0.42],[27850,0.48],[Number.MAX_SAFE_INTEGER,0.5]], // 1985
+        [[2480,0],[1080,0],[1190,0.11],[1080, 0.12],[2260,0.14],[2160,0.15],[2480,0.16],[2270,0.18],[2270,0.2],[3450,0.23],[5720,0.26],[5720,0.3],[5720,0.34],[7980,0.38],[14890,0.42],[28600,0.48],[Number.MAX_SAFE_INTEGER,0.5]], // 1986
         [[2540,0],[1900,0],[1800,0.11],[15000, 0.15],[10200,0.28],[27000,0.35],[Number.MAX_SAFE_INTEGER,0.36]], // 1987
         [[3000,0],[1950,0],[17850, 0.15],[Number.MAX_SAFE_INTEGER,0.28]], // 1988
         [[3100,0],[2000,0],[18550, 0.15],[Number.MAX_SAFE_INTEGER,0.28]], // 1989
@@ -57,7 +94,7 @@ function updateIncomeTaxInfo() {
         years.push(year);
         taxRates.push(taxRate.toFixed(1));
     }
-    if (document.getElementById("incomeTaxGraph").className == "chartjs-render-monitor") {
+    if (linesOnChart != 0) {
         updatePlot(taxRates, ("Effective Tax Rate On " + income));
     } else {
         makePlot("incomeTaxGraph",taxRates,years,("Effective Tax Rate For Income Of " + income));
@@ -92,6 +129,8 @@ function makePlot(elementID,data,labels,title) {
     //barChartData.datasets[0].bars[5].backgroundColor = "red".
     Chart.defaults.global.defaultColor = 'rgba(0, 100, 0, 0.9)';
     incomeTaxLineChart = new Chart(document.getElementById(elementID),barChartData);
+    clearButton.style.display = "block";
+
 }
 
 function updatePlot(data, title) {
@@ -110,26 +149,14 @@ function updatePlot(data, title) {
     incomeTaxLineChart.data.datasets.push(newData);
     incomeTaxLineChart.update();
 }
-
-// https://stackoverflow.com/questions/49974145/how-to-convert-rgba-to-hex-color-code-using-javascript
-function rgba2hex(orig) {
-    var a, isPercent,
-      rgb = orig.replace(/\s/g, '').match(/^rgba?\((\d+),(\d+),(\d+),?([^,\s)]+)?/i),
-      alpha = (rgb && rgb[4] || "").trim(),
-      hex = rgb ?
-      (rgb[1] | 1 << 8).toString(16).slice(1) +
-      (rgb[2] | 1 << 8).toString(16).slice(1) +
-      (rgb[3] | 1 << 8).toString(16).slice(1) : orig;
   
-    if (alpha !== "") {
-      a = alpha;
+function clearPlot() {
+    if (document.getElementById("incomeTaxGraph").className != "chartjs-render-monitor") {
+        alert("Nothing to clear");
     } else {
-      a = 01;
+        incomeTaxLineChart.data.datasets = [];
+        incomeTaxLineChart.update();
+        linesOnChart = 0;
     }
-    // multiply before convert to HEX
-    a = ((a * 255) | 1 << 8).toString(16).slice(1)
-    hex = hex + a;
-  
-    return hex;
-  };
+};
 

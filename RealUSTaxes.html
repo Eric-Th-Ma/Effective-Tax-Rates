@@ -28,11 +28,19 @@ var linesOnChart = 0;
         Learn about income taxes in the U.S.
         <form id="incomeReader" name="incomeReader" action="" method="POST" enctype="application/x-www-form-urlencoded">
         <br>
-        Income in thousands of 2019 dollars: <input type="number" name="income" id="income"> ,000 <br>
+        Income in thousands of 2019 dollars: <input type="number" name="income" id="income"> ,000 
         </form>
-        <button onclick="updateIncomeTaxInfo()">Add To Plot</button> 
+        <button id="Add To Plot" onclick="updateIncomeTaxInfo()">Add</button> 
         <br>
+
         <canvas id = "incomeTaxGraph" width = "600" height = "275"> </canvas>
+
+        <br>
+        <button id="clear" onclick="clearPlot()">Clear</button> 
+        <script>
+            var clearButton = document.getElementById("clear");
+            clearButton.style.display = "none";
+        </script>
 
     </body>
 </html>
