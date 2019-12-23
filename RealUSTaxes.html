@@ -7,40 +7,47 @@
         integrity="sha256-8zyeSXm+yTvzUN1VgAOinFgaVFEFTyYzWShOy9w7WoQ=" 
         crossorigin="anonymous">
 </script>
-<script src="RealUSTaxes.js">
-</script>
-<script>
-var incomeTaxLineChart;
-var linesOnChart = 0;
-</script>
     <head>
         <meta charset="utf-8">
         <meta http-equiv="X-UA-Compatible" content="IE=edge">
-        <title>Welcome!</title>
+        <title>History of Income Taxes</title>
         <meta name="description" content="">
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <link rel="stylesheet" href="">
+        <style>
+            body {
+                background-image: url("background-dems&reps.png");
+                background-color: lightgray;
+            }
+        </style> 
     </head>
     <body>
         <!--[if lt IE 7]>
             <p class="browsehappy">You are using an <strong>outdated</strong> browser. Please <a href="#">upgrade your browser</a> to improve your experience.</p>
         <![endif]-->
-        Learn about income taxes in the U.S.
-        <form id="incomeReader" name="incomeReader" action="" method="POST" enctype="application/x-www-form-urlencoded">
-        <br>
-        Income in thousands of 2019 dollars: <input type="number" name="income" id="income"> ,000 
-        </form>
-        <button id="Add To Plot" onclick="updateIncomeTaxInfo()">Add</button> 
-        <br>
+        <div style="margin: 20px; background-color: rgba(211, 211, 211, 0.95); padding: 8px;">
+            <h1 style="margin: 0px;">How income taxes have really changed</h1>
+            <div style="padding: 8px;">
+                <p>
+                To learn about how taxes have changed since 1977 enter an income below too see a graph of the effective
+                tax rate on that income level. To compare multiple income levels just add more.
+                </p>
+                <form id="incomeReader" name="incomeReader" action="" method="POST" enctype="application/x-www-form-urlencoded" style="display: inline;">
+                    <strong>Income in thousands of 2019 dollars: </strong><input type="number" name="income" id="income"> ,000
+                </form>
+                <button id="Add To Plot" onclick="updateIncomeTaxInfo()">Add</button>
+                <br>
+            </div>
 
-        <canvas id = "incomeTaxGraph" width = "600" height = "275"> </canvas>
+            <canvas id = "incomeTaxGraph" width = "600" height = "250"> </canvas>
 
-        <br>
-        <button id="clear" onclick="clearPlot()">Clear</button> 
-        <script>
-            var clearButton = document.getElementById("clear");
-            clearButton.style.display = "none";
-        </script>
+            <br>
+            <button id="clear" onclick="clearPlot()">Clear</button> 
+            <div id="presidency overlay" onmouseover="overlayPlot(presidencyControl)" onmouseout="removeOverlay()" style="margin: 20px; background-color: red; padding: 8px; display: inline-block;"><h3 style="margin: 0px;">Presidency</h3></div>
+            <div id="congress overlay" onmouseover="overlayPlot(congressControl)" onmouseout="removeOverlay()" style="margin: 20px; background-color:blue; padding: 8px; display: inline-block;"><h3 style="margin: 0px;">Congress</h3></div>
+        </div>
 
     </body>
+<script src="RealUSTaxes.js">
+</script>
 </html>

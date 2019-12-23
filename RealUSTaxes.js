@@ -1,3 +1,16 @@
+var incomeTaxLineChart;
+var linesOnChart = 0;
+var clearButton = document.getElementById("clear");
+clearButton.style.display = "none";
+var graphRender = document.getElementById("incomeTaxGraph");
+graphRender.style.display = "none";
+var presidency = document.getElementById("presidency overlay");
+presidency.style.display = "none";
+var congress = document.getElementById("congress overlay");
+congress.style.display = "none";
+var congressControl = ['D','D','D','D','M','M','M','M','M','M','D','D','D','D','D','D','D','D','R','R','R','R','R','R','R','R','R','R','R','R','D','D','D','D','M','M','M','M','R','R','R','R','M'];
+var presidencyControl = ['D','D','D','D','R','R','R','R','R','R','R','R','R','R','R','R','D','D','D','D','D','D','D','D','R','R','R','R','R','R','R','R','D','D','D','D','D','D','D','D','R','R','R'];
+
 function calculateTax(income, taxBracketsData) {
     currentBracket = taxBracketsData[0];
     if (currentBracket[0] > income) {
@@ -14,7 +27,7 @@ function updateIncomeTaxInfo() {
     var yearsDollarValue = [0.2267,0.2413,0.2597,0.2890,0.3280,0.3620,0.3843,0.3965,0.4138,0.4284,0.437,0.452,0.471,0.493,0.520,0.542,0.559,0.575,0.590,0.607,0.625,0.639,0.649,0.663,0.686,0.705,0.716,0.733,0.752,0.778,0.803,0.826,0.857,0.854,0.869,0.896,0.914,0.928,0.943,0.944,0.956,0.976,1]; // 2002 - 2019
     // personal exemptions: https://www.taxpolicycenter.org/sites/default/files/legacy/taxfacts/content/pdf/historical_parameters.pdf
     // tax brackets: https://taxfoundation.org/us-federal-individual-income-tax-rates-history-1913-2013-nominal-and-inflation-adjusted-brackets/
-    // standard deduction: 
+    // standard deduction: https://en.wikipedia.org/wiki/Standard_deduction
     var yearsTaxData = [
         // Within each tax bracket we have the tax bracket size and rate [size,rate]
         // ovarall we have [standard deduction, personal exemption, lowest tax bracket ... highest tax bracket]
@@ -48,7 +61,7 @@ function updateIncomeTaxInfo() {
         [[2300,0],[1000,0],[1100,0.14],[1000, 0.16],[2100,0.18],[2000,0.19],[2300,0.21],[2100,0.24],[2100,0.26],[3200,0.3],[5300,0.34],[5300,0.39],[5300,0.44],[7400,0.49],[13800,0.55],[26500,0.63],[26500,0.68],[Number.MAX_SAFE_INTEGER,0.7]], // 1980
         [[2300,0],[1000,0],[1100,0.14],[1000, 0.16],[2100,0.16],[2000,0.19],[2300,0.21],[2100,0.24],[2100,0.26],[3200,0.3],[5300,0.34],[5300,0.39],[5300,0.44],[7400,0.49],[13800,0.55],[26500,0.63],[26500,0.68],[Number.MAX_SAFE_INTEGER,0.7]], // 1981
         [[2300,0],[1000,0],[1100,0.12],[1000, 0.14],[2100,0.16],[2000,0.17],[2300,0.19],[2100,0.22],[2100,0.23],[3200,0.27],[5300,0.31],[5300,0.35],[5300,0.4],[7400,0.44],[Number.MAX_SAFE_INTEGER,0.5]], // 1982
-        [[2300,0],[1000,0],[1100,0.11],[1000, 0.13],[2100,0.15],[2000,0.15],[2300,0.17],[2100,0.19],[2100,0.21],[3200,0.24],[5300,0.28],[5300,0.32],[5300,0.36],[7400,0.4],[13800,0.45],[Number.MAX_SAFE_INTEGER,0.5]], // 1983
+        [[2300,0],[1000,0],[1100,0.11],[1000, 0.13],[4100,0.15],[2300,0.17],[2100,0.19],[2100,0.21],[3200,0.24],[5300,0.28],[5300,0.32],[5300,0.36],[7400,0.4],[13800,0.45],[Number.MAX_SAFE_INTEGER,0.5]], // 1983
         [[2300,0],[1000,0],[1100,0.11],[1000, 0.12],[2100,0.14],[2000,0.15],[2300,0.16],[2100,0.18],[2100,0.2],[3200,0.23],[5300,0.26],[5300,0.3],[5300,0.34],[7400,0.38],[13800,0.42],[26500,0.48],[Number.MAX_SAFE_INTEGER,0.5]], // 1984
         [[2390,0],[1040,0],[1150,0.11],[1040, 0.12],[2180,0.14],[2090,0.15],[2390,0.16],[2190,0.18],[2180,0.2],[3330,0.23],[5520,0.26],[5510,0.3],[5520,0.34],[7700,0.38],[14360,0.42],[27850,0.48],[Number.MAX_SAFE_INTEGER,0.5]], // 1985
         [[2480,0],[1080,0],[1190,0.11],[1080, 0.12],[2260,0.14],[2160,0.15],[2480,0.16],[2270,0.18],[2270,0.2],[3450,0.23],[5720,0.26],[5720,0.3],[5720,0.34],[7980,0.38],[14890,0.42],[28600,0.48],[Number.MAX_SAFE_INTEGER,0.5]], // 1986
@@ -116,6 +129,7 @@ function makePlot(elementID,data,labels,title) {
                 borderColor: 'black',
                 pointRadius: 1,
                 lineTension: 0,
+                yAxisID: "line-notStacked",
                 order: data[0]
                 }]
             },
@@ -123,13 +137,18 @@ function makePlot(elementID,data,labels,title) {
             legend: {display:false},
             title: {display:true, text:"Effective Income Tax History"},
             responsive:true,
-            scales: {yAxes: [{ ticks: {beginAtZero:true,  suggestedMax: 50 }}]}
+            scales: {yAxes: [{id: "line-notStacked", ticks: {beginAtZero:true,  suggestedMax: 70}, stacked: false}, 
+                            {id: "bar-stacked", ticks: {beginAtZero:true,  suggestedMax: 70}, stacked: true, display: false}],
+                     xAxes: [{stacked: true}]}
             }
         }        
     //barChartData.datasets[0].bars[5].backgroundColor = "red".
     Chart.defaults.global.defaultColor = 'rgba(0, 100, 0, 0.9)';
     incomeTaxLineChart = new Chart(document.getElementById(elementID),barChartData);
     clearButton.style.display = "block";
+    graphRender.style.display = "block";
+    congress.style.display = "inline-block";
+    presidency.style.display = "inline-block";
 
 }
 
@@ -144,8 +163,9 @@ function updatePlot(data, title) {
         borderColor: 'black',
         pointRadius: 1,
         lineTension: 0,
+        yAxisID: "line-notStacked",
         order: data[0]
-        }
+    }
     incomeTaxLineChart.data.datasets.push(newData);
     incomeTaxLineChart.update();
 }
@@ -158,5 +178,61 @@ function clearPlot() {
         incomeTaxLineChart.update();
         linesOnChart = 0;
     }
+}
+
+function overlayPlot(controlYears) {
+    // var dataMax = [0]*(2019-1977);
+    // for (dataYear of incomeTaxLineChart.data.datasets) {
+    //     if (dataYear.data[0] > dataMax[0]) {
+    //         dataMax = dataYear.data[0];
+    //     }
+    // }
+    backgroundColors = [];
+    backgroundColorsTwo = []
+    data = [];
+    dataTwo = [];
+    for (controlChar of controlYears) {
+        if (controlChar == 'R') {
+            backgroundColors.push('rgba(255,0,0,0.25)');
+            backgroundColorsTwo.push('rgba(255,0,0,0.9)');
+        } else if (controlChar == 'D') {
+            backgroundColors.push('rgba(0,0,255,0.25)');
+            backgroundColorsTwo.push('rgba(0,0,255,0.9)');
+        } else {
+            backgroundColors.push('rgba(200,0,230,0.25)')
+            backgroundColorsTwo.push('rgba(200,0,230,0.9)')
+        }
+        data.push(65);
+        dataTwo.push(5);
+    }
+    var newData = {
+        backgroundColor: backgroundColors,
+        data: data,
+        hidden: false,
+        barPercentage: 1.0,
+        categoryPercentage: 1.0,
+        order: 0,
+        yAxisID: "bar-stacked",
+        type: 'bar'
+    }
+    incomeTaxLineChart.data.datasets.push(newData);
+    var newDataTwo = {
+        backgroundColor: backgroundColorsTwo,
+        data: dataTwo,
+        hidden: false,
+        barPercentage: 1.0,
+        categoryPercentage: 1.0,
+        order: 0,
+        yAxisID: "bar-stacked",
+        type: 'bar'
+    }
+    incomeTaxLineChart.data.datasets.push(newDataTwo);
+    incomeTaxLineChart.update();
+}
+
+function removeOverlay() {
+    incomeTaxLineChart.data.datasets.pop();
+    incomeTaxLineChart.data.datasets.pop();
+    incomeTaxLineChart.update();
 };
 
