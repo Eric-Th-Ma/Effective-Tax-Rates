@@ -9,6 +9,10 @@
 </script>
 <script src="RealUSTaxes.js">
 </script>
+<script>
+var incomeTaxLineChart;
+var linesOnChart = 0;
+</script>
     <head>
         <meta charset="utf-8">
         <meta http-equiv="X-UA-Compatible" content="IE=edge">
@@ -24,10 +28,11 @@
         Learn about income taxes in the U.S.
         <form id="incomeReader" name="incomeReader" action="" method="POST" enctype="application/x-www-form-urlencoded">
         <br>
-        Income in thousands of 2019 dollars: <input type="number" name="income" id="income" onblur="updateIncomeTaxInfo()"> ,000 <br>
+        Income in thousands of 2019 dollars: <input type="number" name="income" id="income"> ,000 <br>
         </form>
-
-        <canvas id = "incomeTaxGraph" width = "600" height = "500"> </canvas>
+        <button onclick="updateIncomeTaxInfo()">Add To Plot</button> 
+        <br>
+        <canvas id = "incomeTaxGraph" width = "600" height = "275"> </canvas>
 
     </body>
 </html>

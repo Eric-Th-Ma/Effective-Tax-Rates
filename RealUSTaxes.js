@@ -57,7 +57,12 @@ function updateIncomeTaxInfo() {
         years.push(year);
         taxRates.push(taxRate.toFixed(1));
     }
-    makePlot("incomeTaxGraph",taxRates,years,("Income tax by year for people making: " + income));
+    if (document.getElementById("incomeTaxGraph").className == "chartjs-render-monitor") {
+        updatePlot(taxRates, ("Effective Tax Rate On " + income));
+    } else {
+        makePlot("incomeTaxGraph",taxRates,years,("Effective Tax Rate For Income Of " + income));
+    }
+    ++linesOnChart;
 }
 
 function makePlot(elementID,data,labels,title) {
@@ -66,24 +71,65 @@ function makePlot(elementID,data,labels,title) {
         data: {
             labels: labels,
             datasets: [{
-                label: "Effective Tax Rate",
-                backgroundColor: "navy",
+                label: title,
+                backgroundColor: 'navy',
                 data: data,
                 hidden: false,
-                borderWidth: 4,
+                borderWidth: 2,
                 borderColor: 'black',
                 pointRadius: 1,
-                lineTension: 0
+                lineTension: 0,
+                order: data[0]
                 }]
             },
         options: {
             legend: {display:false},
-            title: {display:true, text:title},
+            title: {display:true, text:"Effective Income Tax History"},
             responsive:true,
             scales: {yAxes: [{ ticks: {beginAtZero:true,  suggestedMax: 50 }}]}
             }
         }        
     //barChartData.datasets[0].bars[5].backgroundColor = "red".
     Chart.defaults.global.defaultColor = 'rgba(0, 100, 0, 0.9)';
-    myBarChart = new Chart(document.getElementById(elementID),barChartData);
-};
+    incomeTaxLineChart = new Chart(document.getElementById(elementID),barChartData);
+}
+
+function updatePlot(data, title) {
+    var fillColor = 'rgba(' + ((11113*linesOnChart) % 256) + ', ' + ((37441*linesOnChart) % 256) + ', ' + ((46633*linesOnChart) % 256) + ', 1)';
+    var newData = {
+        label: title,
+        backgroundColor: fillColor,
+        data: data,
+        hidden: false,
+        borderWidth: 2,
+        borderColor: 'black',
+        pointRadius: 1,
+        lineTension: 0,
+        order: data[0]
+        }
+    incomeTaxLineChart.data.datasets.push(newData);
+    incomeTaxLineChart.update();
+}
+
+// https://stackoverflow.com/questions/49974145/how-to-convert-rgba-to-hex-color-code-using-javascript
+function rgba2hex(orig) {
+    var a, isPercent,
+      rgb = orig.replace(/\s/g, '').match(/^rgba?\((\d+),(\d+),(\d+),?([^,\s)]+)?/i),
+      alpha = (rgb && rgb[4] || "").trim(),
+      hex = rgb ?
+      (rgb[1] | 1 << 8).toString(16).slice(1) +
+      (rgb[2] | 1 << 8).toString(16).slice(1) +
+      (rgb[3] | 1 << 8).toString(16).slice(1) : orig;
+  
+    if (alpha !== "") {
+      a = alpha;
+    } else {
+      a = 01;
+    }
+    // multiply before convert to HEX
+    a = ((a * 255) | 1 << 8).toString(16).slice(1)
+    hex = hex + a;
+  
+    return hex;
+  };
+
