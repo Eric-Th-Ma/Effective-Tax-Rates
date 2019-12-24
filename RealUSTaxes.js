@@ -191,19 +191,29 @@ function overlayPlot(controlYears) {
     backgroundColorsTwo = []
     data = [];
     dataTwo = [];
+    var imgGOP = new Image();
+    imgGOP.src = 'GOP.png';
+    var ctx = document.getElementById('incomeTaxGraph').getContext('2d');
+    var fillPatternGOP = ctx.createPattern(imgGOP, 'repeat');
+    var imgDEM = new Image();
+    imgDEM.src = 'DEM.png';
+    var fillPatternDEM = ctx.createPattern(imgDEM, 'repeat');
+    var imgSplit = new Image();
+    imgSplit.src = 'Party-Split.png';
+    var fillPatternSplit = ctx.createPattern(imgSplit, 'repeat');
     for (controlChar of controlYears) {
         if (controlChar == 'R') {
-            backgroundColors.push('rgba(255,0,0,0.25)');
-            backgroundColorsTwo.push('rgba(255,0,0,0.9)');
+            backgroundColors.push('rgba(255, 0, 0, 0.25)');
+            backgroundColorsTwo.push(fillPatternGOP);
         } else if (controlChar == 'D') {
-            backgroundColors.push('rgba(0,0,255,0.25)');
-            backgroundColorsTwo.push('rgba(0,0,255,0.9)');
+            backgroundColors.push('rgba(0, 0, 255, 0.25)');
+            backgroundColorsTwo.push(fillPatternDEM);
         } else {
-            backgroundColors.push('rgba(200,0,230,0.25)')
-            backgroundColorsTwo.push('rgba(200,0,230,0.9)')
+            backgroundColors.push('rgba(164, 52, 235, 0.25)')
+            backgroundColorsTwo.push(fillPatternSplit)
         }
-        data.push(65);
-        dataTwo.push(5);
+        data.push(64);
+        dataTwo.push(6);
     }
     var newData = {
         backgroundColor: backgroundColors,
