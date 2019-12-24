@@ -16,8 +16,21 @@
         <link rel="stylesheet" href="">
         <style>
             body {
-                background-image: url("background-dems&reps.png");
+                background-image: url("src/img/background-dems&reps.png");
                 background-color: lightgray;
+            }
+            .box {
+                float: left;
+                width: 46%;
+            }
+            .boxSmall {
+                float: left;
+                width: 8%;
+            }
+            .clearfix::after {
+                content: "";
+                clear: both;
+                display: table;
             }
         </style> 
     </head>
@@ -26,28 +39,48 @@
             <p class="browsehappy">You are using an <strong>outdated</strong> browser. Please <a href="#">upgrade your browser</a> to improve your experience.</p>
         <![endif]-->
         <div style="margin: 20px; background-color: rgba(211, 211, 211, 0.95); padding: 8px;">
-            <h1 style="margin: 0px;">How income taxes have really changed</h1>
+            <h1 style="margin: 0px;">
+                How income taxes have really changed
+            </h1>
             <div style="padding: 8px;">
                 <p>
-                To learn about how taxes have changed since 1977 enter an income below too see a graph of the effective
-                tax rate on that income level. To compare multiple income levels just add more.
+                    To learn about how taxes have changed since 1977 enter an income below too see a graph of the effective
+                    tax rate on that income level. To compare multiple income levels just add more.
                 </p>
                 <form id="incomeReader" name="incomeReader" action="" method="POST" enctype="application/x-www-form-urlencoded" style="display: inline;">
-                    <strong>Income in thousands of 2019 dollars: </strong><input type="number" name="income" id="income"> ,000
+                    <strong>Income in thousands of 2019 dollars: </strong>
+                    <input type="number" name="income" id="income">,000
                 </form>
                 <button id="Add To Plot" onclick="updateIncomeTaxInfo()">Add</button>
                 <br>
             </div>
 
-            <canvas id = "incomeTaxGraph" width = "600" height = "250"> </canvas>
+            <canvas id = "incomeTaxGraph" width = "11" height = "5"></canvas>
 
             <br>
-            <button id="clear" onclick="clearPlot()">Clear</button> 
-            <div id="presidency overlay" onmouseover="overlayPlot(presidencyControl)" onmouseout="removeOverlay()" style="margin: 20px; background-color: red; padding: 8px; display: inline-block;"><h3 style="margin: 0px;">Presidency</h3></div>
-            <div id="congress overlay" onmouseover="overlayPlot(congressControl)" onmouseout="removeOverlay()" style="margin: 20px; background-color:blue; padding: 8px; display: inline-block;"><h3 style="margin: 0px;">Congress</h3></div>
+            <div id="chart overlays" class="clearfix" style="margin-left: 8px; display: none;">
+                <div class="box">
+                    <div style="margin-left: 8px;">Hover to see who had control of the presidency and congress.</div>
+                    <img onmouseenter="overlayPlot(presidencyControl)" onmouseleave="removeOverlay()" src="src/img/white-house-logo.png" style="margin: 8px; padding: 8px; background-color: navy; display: inline-block;"></img>
+                    <img onmouseenter="overlayPlot(congressControl)" onmouseleave="removeOverlay()" src="src/img/Capitol-building.png" style="margin: 8px; padding: 8px; background-color: lightgray; display: inline-block;"></img>
+                </div>
+                <div class="box">
+                    <div style="margin-left: 8px;">Click to toggle display of measures of the economy.</div>
+                    <div onclick="toggleEconomicMeasure(deficitToGDPData, possibleNames[0])" style="margin: 8px; padding: 9px; background-color: gray; display: inline-block;">Deficit / GDP</div>
+                    <div onclick="toggleEconomicMeasure(percentWealthInTop, possibleNames[3])" style="margin: 8px; padding: 9px; background-color: gray; display: inline-block;">% Wealth in top 0.01%</div>
+                    <div onclick="toggleEconomicMeasure(inflationRate, possibleNames[1])" style="margin: 8px; padding: 9px; background-color: gray; display: inline-block;">Inflation Rate</div>
+                    <div onclick="toggleEconomicMeasure(realMedHouseIncome, possibleNames[2])" style="margin: 8px; padding: 9px; background-color: gray; display: inline-block;">Median Household Income</div>
+                </div>
+                <div class="boxSmall">
+                    <button id="clear" onclick="clearPlot()" 
+                            style="margin-left: 16px; margin-bottom: 8px; float: right;">
+                        Clear
+                    </button>
+                </div>
+            </div>
         </div>
 
     </body>
-<script src="RealUSTaxes.js">
+<script src="src/RealUSTaxes.js">
 </script>
 </html>

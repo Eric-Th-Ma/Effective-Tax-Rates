@@ -1,15 +1,55 @@
 var incomeTaxLineChart;
 var linesOnChart = 0;
-var clearButton = document.getElementById("clear");
-clearButton.style.display = "none";
 var graphRender = document.getElementById("incomeTaxGraph");
 graphRender.style.display = "none";
-var presidency = document.getElementById("presidency overlay");
-presidency.style.display = "none";
-var congress = document.getElementById("congress overlay");
-congress.style.display = "none";
+
+var yearsDollarValue = [0.2267,0.2413,0.2597,0.2890,0.3280,0.3620,0.3843,0.3965,0.4138,0.4284,0.437,0.452,0.471,0.493,0.520,0.542,0.559,0.575,0.590,0.607,0.625,0.639,0.649,0.663,0.686,0.705,0.716,0.733,0.752,0.778,0.803,0.826,0.857,0.854,0.869,0.896,0.914,0.928,0.943,0.944,0.956,0.976,1];
+
+var possibleNames = ['Deficit to GDP Ratio','Inflation Rate','Median Household Income','% Wealth in top 0.01%']
+// data from: https://www.thebalance.com/us-deficit-by-year-3306306
+var deficitToGDPData = [
+    2.5, 2.5, 1.5, // 1977 - 1979
+    2.6, 2.4, 3.8, 5.6, 4.5, 4.8, 4.8, 3.1, 2.9, 2.7, // 1980s
+    3.7, 4.3, 4.4, 3.7, 2.8, 2.1, 1.3, 0.3, 0.8, 1.3, // 1990s
+    2.3, 1.2, 1.4, 3.3, 3.4, 2.4, 1.8, 1.1, 3.1, 9.8, // 2000s
+    8.6, 8.3, 6.7, 4.0, 2.7, 2.4, 3.1, 3.4, 4.0, 4.8  // 2010s
+];
+// data from: https://www.thebalance.com/u-s-inflation-rate-history-by-year-and-forecast-3306093
+var inflationRate = [
+    6.7, 9.0, 13.3, // 1977 - 1979
+    12.5, 8.9, 3.8, 3.8, 3.9, 3.8, 1.1, 4.4, 4.4, 4.6, // 1980s
+    6.1, 3.1, 2.9, 2.7, 2.7, 2.5, 3.3, 1.7, 1.6, 2.7, // 1990s
+    3.4, 1.6, 2.4, 1.9, 3.3, 3.4, 2.5, 4.1, 0.1, 2.7, // 2000s
+    1.5, 3.0, 1.7, 1.5, 0.8, 0.7, 2.1, 2.1, 1.9, 1.5  // 2010s
+];
+// data from: https://www.davemanuel.com/median-household-income.php
+var nominalMedHouseIncome = [
+    11692, 13098, 14526, // 1977-1979
+    15944, 17300, 18347, 18797, 20196, 21317, 22482, 23596, 24772, 26440, // 1980s
+    27522, 27842, 28424, 29143, 30247, 32036, 33447, 34952, 36802, 38523, // 1990s
+    39772, 39978, 40125, 41039, 41952, 43861, 45618, 47549, 47624, 47126, // 2000s
+    46658, 47368, 48291, 50704, 50813, 55435, 57897, 60145, 63179, 63030 // 2010s
+];
+var realMedHouseIncome = [];
+for (i = 0; i < nominalMedHouseIncome.length; ++i) {
+    realMedHouseIncome.push((nominalMedHouseIncome[i]/yearsDollarValue[i]).toFixed(0));
+}
+// data from: Table B1 online appendix Saez & Zucman (2016) Wealth Inequality in the United States since 1913
+var percentWealthInTop = [
+    2.3, 2.2, 2.6, // 1977-1979
+    2.6, 3.0, 3.3, 3.1, 3.4, 3.6, 3.4, 3.7, 4.4, 4.3, // 1980s
+    4.5, 4.3, 4.8, 5.0, 4.7, 4.8, 5.4, 5.7, 5.9, 6.2, // 1990s
+    6.9, 7.0, 6.3, 6.5, 7.0, 7.4, 7.7, 8.5, 9.2, 9.6, // 2000s
+    10.8, 10.1, 11.2,
+]
+
 var congressControl = ['D','D','D','D','M','M','M','M','M','M','D','D','D','D','D','D','D','D','R','R','R','R','R','R','R','R','R','R','R','R','D','D','D','D','M','M','M','M','R','R','R','R','M'];
 var presidencyControl = ['D','D','D','D','R','R','R','R','R','R','R','R','R','R','R','R','D','D','D','D','D','D','D','D','R','R','R','R','R','R','R','R','D','D','D','D','D','D','D','D','R','R','R'];
+
+// https://stackoverflow.com/questions/2901102/how-to-print-a-number-with-commas-as-thousands-separators-in-javascript
+function numberWithCommas(x) {
+    return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+}
 
 function calculateTax(income, taxBracketsData) {
     currentBracket = taxBracketsData[0];
@@ -24,37 +64,12 @@ function calculateTax(income, taxBracketsData) {
 function updateIncomeTaxInfo() {
     var income = document.incomeReader.income.value * 1000;
     var taxesStartYear = 1977;
-    var yearsDollarValue = [0.2267,0.2413,0.2597,0.2890,0.3280,0.3620,0.3843,0.3965,0.4138,0.4284,0.437,0.452,0.471,0.493,0.520,0.542,0.559,0.575,0.590,0.607,0.625,0.639,0.649,0.663,0.686,0.705,0.716,0.733,0.752,0.778,0.803,0.826,0.857,0.854,0.869,0.896,0.914,0.928,0.943,0.944,0.956,0.976,1]; // 2002 - 2019
     // personal exemptions: https://www.taxpolicycenter.org/sites/default/files/legacy/taxfacts/content/pdf/historical_parameters.pdf
     // tax brackets: https://taxfoundation.org/us-federal-individual-income-tax-rates-history-1913-2013-nominal-and-inflation-adjusted-brackets/
     // standard deduction: https://en.wikipedia.org/wiki/Standard_deduction
     var yearsTaxData = [
         // Within each tax bracket we have the tax bracket size and rate [size,rate]
         // ovarall we have [standard deduction, personal exemption, lowest tax bracket ... highest tax bracket]
-        // [[2540,0],[600,0],[1800,0.11],[15000, 0.15],[10200,0.28],[27000,0.35],[Number.MAX_SAFE_INTEGER,0.36]], // 1953
-        // [[2540,0],[600,0],[1800,0.11],[15000, 0.15],[10200,0.28],[27000,0.35],[Number.MAX_SAFE_INTEGER,0.36]], // 1954
-        // [[2540,0],[600,0],[1800,0.11],[15000, 0.15],[10200,0.28],[27000,0.35],[Number.MAX_SAFE_INTEGER,0.36]], // 1955
-        // [[2540,0],[600,0],[1800,0.11],[15000, 0.15],[10200,0.28],[27000,0.35],[Number.MAX_SAFE_INTEGER,0.36]], // 1956
-        // [[2540,0],[600,0],[1800,0.11],[15000, 0.15],[10200,0.28],[27000,0.35],[Number.MAX_SAFE_INTEGER,0.36]], // 1957
-        // [[2540,0],[600,0],[1800,0.11],[15000, 0.15],[10200,0.28],[27000,0.35],[Number.MAX_SAFE_INTEGER,0.36]], // 1958
-        // [[2540,0],[600,0],[1800,0.11],[15000, 0.15],[10200,0.28],[27000,0.35],[Number.MAX_SAFE_INTEGER,0.36]], // 1959
-        // [[2540,0],[600,0],[1800,0.11],[15000, 0.15],[10200,0.28],[27000,0.35],[Number.MAX_SAFE_INTEGER,0.36]], // 1960
-        // [[2540,0],[600,0],[1800,0.11],[15000, 0.15],[10200,0.28],[27000,0.35],[Number.MAX_SAFE_INTEGER,0.36]], // 1961
-        // [[2540,0],[600,0],[1800,0.11],[15000, 0.15],[10200,0.28],[27000,0.35],[Number.MAX_SAFE_INTEGER,0.36]], // 1962
-        // [[2540,0],[600,0],[1800,0.11],[15000, 0.15],[10200,0.28],[27000,0.35],[Number.MAX_SAFE_INTEGER,0.36]], // 1963
-        // [[2540,0],[600,0],[1800,0.11],[15000, 0.15],[10200,0.28],[27000,0.35],[Number.MAX_SAFE_INTEGER,0.36]], // 1964
-        // [[2540,0],[600,0],[1800,0.11],[15000, 0.15],[10200,0.28],[27000,0.35],[Number.MAX_SAFE_INTEGER,0.36]], // 1965
-        // [[2540,0],[600,0],[1800,0.11],[15000, 0.15],[10200,0.28],[27000,0.35],[Number.MAX_SAFE_INTEGER,0.36]], // 1966
-        // [[2540,0],[600,0],[1800,0.11],[15000, 0.15],[10200,0.28],[27000,0.35],[Number.MAX_SAFE_INTEGER,0.36]], // 1967
-        // [[2540,0],[600,0],[1800,0.11],[15000, 0.15],[10200,0.28],[27000,0.35],[Number.MAX_SAFE_INTEGER,0.36]], // 1968
-        // [[2540,0],[600,0],[1800,0.11],[15000, 0.15],[10200,0.28],[27000,0.35],[Number.MAX_SAFE_INTEGER,0.36]], // 1969
-        // [[2540,0],[625,0],[1800,0.11],[15000, 0.15],[10200,0.28],[27000,0.35],[Number.MAX_SAFE_INTEGER,0.36]], // 1970
-        // [[2540,0],[675,0],[1800,0.11],[15000, 0.15],[10200,0.28],[27000,0.35],[Number.MAX_SAFE_INTEGER,0.36]], // 1971
-        // [[2540,0],[750,0],[1800,0.11],[15000, 0.15],[10200,0.28],[27000,0.35],[Number.MAX_SAFE_INTEGER,0.36]], // 1972
-        // [[2540,0],[750,0],[1800,0.11],[15000, 0.15],[10200,0.28],[27000,0.35],[Number.MAX_SAFE_INTEGER,0.36]], // 1973
-        // [[2540,0],[750,0],[1800,0.11],[15000, 0.15],[10200,0.28],[27000,0.35],[Number.MAX_SAFE_INTEGER,0.36]], // 1974
-        // [[2540,0],[750,0],[1800,0.11],[15000, 0.15],[10200,0.28],[27000,0.35],[Number.MAX_SAFE_INTEGER,0.36]], // 1975
-        // [[2540,0],[750,0],[1800,0.11],[15000, 0.15],[10200,0.28],[27000,0.35],[Number.MAX_SAFE_INTEGER,0.36]], // 1976
         [[2200,0],[750,0],[500,0.14],[1000, 0.16],[2100,0.19],[2000,0.21],[4000,0.25],[4000,0.29],[4000,0.34],[4000,0.38],[10000,0.45],[6000,0.5],[6000,0.55],[6000,0.6],[20000,0.64],[10000,0.66],[20000,0.68],[Number.MAX_SAFE_INTEGER,0.7]], // 1977
         [[2200,0],[750,0],[500,0.14],[1000, 0.16],[2100,0.19],[2000,0.21],[4000,0.25],[4000,0.29],[4000,0.34],[4000,0.38],[10000,0.45],[6000,0.5],[6000,0.55],[6000,0.6],[20000,0.64],[10000,0.66],[20000,0.68],[Number.MAX_SAFE_INTEGER,0.7]], // 1978
         [[2300,0],[1000,0],[1100,0.14],[1000, 0.16],[2100,0.18],[2000,0.19],[2300,0.21],[2100,0.24],[2100,0.26],[3200,0.3],[5300,0.34],[5300,0.39],[5300,0.44],[7400,0.49],[13800,0.55],[26500,0.63],[26500,0.68],[Number.MAX_SAFE_INTEGER,0.7]], // 1979
@@ -108,9 +123,9 @@ function updateIncomeTaxInfo() {
         taxRates.push(taxRate.toFixed(1));
     }
     if (linesOnChart != 0) {
-        updatePlot(taxRates, ("Effective Tax Rate On " + income));
+        updatePlot(taxRates, ("Effective Tax Rate For Income Of " + numberWithCommas(income)));
     } else {
-        makePlot("incomeTaxGraph",taxRates,years,("Effective Tax Rate For Income Of " + income));
+        makePlot("incomeTaxGraph",taxRates,years,("Effective Tax Rate For Income Of " + numberWithCommas(income)));
     }
     ++linesOnChart;
 }
@@ -134,21 +149,28 @@ function makePlot(elementID,data,labels,title) {
                 }]
             },
         options: {
-            legend: {display:false},
+            legend: {display:true, labels: {fontColor: 'rgb(255, 99, 132)', 
+                filter: function(item, incomeTaxLineChart) {
+                    // Logic to remove a particular legend item goes here
+                    return !item.text.includes('not in legend');
+            }}},
             title: {display:true, text:"Effective Income Tax History"},
             responsive:true,
             scales: {yAxes: [{id: "line-notStacked", ticks: {beginAtZero:true,  suggestedMax: 70}, stacked: false}, 
-                            {id: "bar-stacked", ticks: {beginAtZero:true,  suggestedMax: 70}, stacked: true, display: false}],
+                            {id: "bar-stacked", ticks: {beginAtZero:true,  suggestedMax: 70}, stacked: true, display: false},
+                            {id: possibleNames[0], stacked: false, display: false},
+                            {id: possibleNames[1], stacked: false, display: false},
+                            {id: possibleNames[2], stacked: false, display: false},
+                            {id: possibleNames[3], stacked: false, display: false}
+                        ],
                      xAxes: [{stacked: true}]}
             }
         }        
     //barChartData.datasets[0].bars[5].backgroundColor = "red".
     Chart.defaults.global.defaultColor = 'rgba(0, 100, 0, 0.9)';
     incomeTaxLineChart = new Chart(document.getElementById(elementID),barChartData);
-    clearButton.style.display = "block";
     graphRender.style.display = "block";
-    congress.style.display = "inline-block";
-    presidency.style.display = "inline-block";
+    document.getElementById("chart overlays").style.display = "block";
 
 }
 
@@ -181,41 +203,54 @@ function clearPlot() {
 }
 
 function overlayPlot(controlYears) {
-    // var dataMax = [0]*(2019-1977);
+    // This Code allowed the top portion of theoverlay to scale down to fill the portion above the top of the line
+    // var dataMax = [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0];
     // for (dataYear of incomeTaxLineChart.data.datasets) {
-    //     if (dataYear.data[0] > dataMax[0]) {
-    //         dataMax = dataYear.data[0];
+    //     if (Number(dataYear.data[0]) > dataMax[0]) {
+    //         for (i = 0; i < dataMax.length; ++i) {
+    //             dataMax[i] = Number(dataYear.data[i]);
+    //         }
     //     }
     // }
+    // var counter = 0;
     backgroundColors = [];
     backgroundColorsTwo = []
     data = [];
     dataTwo = [];
-    var imgGOP = new Image();
-    imgGOP.src = 'GOP.png';
-    var ctx = document.getElementById('incomeTaxGraph').getContext('2d');
-    var fillPatternGOP = ctx.createPattern(imgGOP, 'repeat');
-    var imgDEM = new Image();
-    imgDEM.src = 'DEM.png';
-    var fillPatternDEM = ctx.createPattern(imgDEM, 'repeat');
-    var imgSplit = new Image();
-    imgSplit.src = 'Party-Split.png';
-    var fillPatternSplit = ctx.createPattern(imgSplit, 'repeat');
+    // This Code allows the top portion to be democrat and GOP logos however it ended up being very glitchy.
+    // var imgGOP = new Image();
+    // imgGOP.src = 'GOP.png';
+    // var ctx = document.getElementById('incomeTaxGraph').getContext('2d');
+    // var fillPatternGOP = ctx.createPattern(imgGOP, 'repeat');
+    // var imgDEM = new Image();
+    // imgDEM.src = 'DEM.png';
+    // var fillPatternDEM = ctx.createPattern(imgDEM, 'repeat');
+    // var imgSplit = new Image();
+    // imgSplit.src = 'Party-Split.png';
+    // var fillPatternSplit = ctx.createPattern(imgSplit, 'repeat');
     for (controlChar of controlYears) {
         if (controlChar == 'R') {
             backgroundColors.push('rgba(255, 0, 0, 0.25)');
-            backgroundColorsTwo.push(fillPatternGOP);
+            // backgroundColorsTwo.push(fillPatternGOP);
+            backgroundColorsTwo.push('rgba(255, 0, 0, 0.9)');
         } else if (controlChar == 'D') {
             backgroundColors.push('rgba(0, 0, 255, 0.25)');
-            backgroundColorsTwo.push(fillPatternDEM);
+            // backgroundColorsTwo.push(fillPatternDEM);
+            backgroundColorsTwo.push('rgba(0, 0, 255, 0.9)');
         } else {
-            backgroundColors.push('rgba(164, 52, 235, 0.25)')
-            backgroundColorsTwo.push(fillPatternSplit)
+            backgroundColors.push('rgba(164, 52, 235, 0.25)');
+            // backgroundColorsTwo.push(fillPatternSplit)
+            backgroundColorsTwo.push('rgba(164, 52, 235, 0.9)');
         }
         data.push(64);
         dataTwo.push(6);
+        // var desiredHeightToNotHide = (Math.min(2 + dataMax[counter], 68)/4).toFixed(0)*4;
+        // data.push(desiredHeightToNotHide);
+        // dataTwo.push(70 - desiredHeightToNotHide);
+        // counter++;
     }
     var newData = {
+        label: 'not in legend',
         backgroundColor: backgroundColors,
         data: data,
         hidden: false,
@@ -227,6 +262,7 @@ function overlayPlot(controlYears) {
     }
     incomeTaxLineChart.data.datasets.push(newData);
     var newDataTwo = {
+        label: 'not in legend',
         backgroundColor: backgroundColorsTwo,
         data: dataTwo,
         hidden: false,
@@ -243,6 +279,42 @@ function overlayPlot(controlYears) {
 function removeOverlay() {
     incomeTaxLineChart.data.datasets.pop();
     incomeTaxLineChart.data.datasets.pop();
+    incomeTaxLineChart.update();
+}
+
+function toggleEconomicMeasure(data, measureName) {
+    var togglingOn = true;
+    for(var j = incomeTaxLineChart.data.datasets.length -1; j >= 0 ; j--){
+        if (incomeTaxLineChart.data.datasets[j].label == measureName) {
+            togglingOn = false;
+            incomeTaxLineChart.data.datasets.splice(j, 1);
+        } else {
+            for (name of possibleNames) {
+                if (incomeTaxLineChart.data.datasets[j].label == name) {
+                    incomeTaxLineChart.data.datasets.splice(j, 1);
+                    break;
+                }
+            }
+        }
+    }
+    --linesOnChart;
+    if (togglingOn) {
+        var newData = {
+            label: measureName,
+            data: data,
+            hidden: false,
+            backgroundColor: 'rgba(255,255,255,0)',
+            borderWidth: 4,
+            borderColor: 'black',
+            pointRadius: 2,
+            lineTension: 0,
+            yAxisID: measureName,
+            order: data[0]
+        }
+        incomeTaxLineChart.data.datasets.push(newData);
+        ++linesOnChart;
+        ++linesOnChart;
+    }
     incomeTaxLineChart.update();
 };
 
