@@ -1,7 +1,8 @@
 var incomeTaxLineChart;
 var linesOnChart = 0;
 var graphRender = document.getElementById("incomeTaxGraph");
-graphRender.style.display = "none";
+
+var taxRates = [];
 
 var yearsDollarValue = [0.2267,0.2413,0.2597,0.2890,0.3280,0.3620,0.3843,0.3965,0.4138,0.4284,0.437,0.452,0.471,0.493,0.520,0.542,0.559,0.575,0.590,0.607,0.625,0.639,0.649,0.663,0.686,0.705,0.716,0.733,0.752,0.778,0.803,0.826,0.857,0.854,0.869,0.896,0.914,0.928,0.943,0.944,0.956,0.976,1];
 
@@ -40,11 +41,15 @@ var percentWealthInTop = [
     2.6, 3.0, 3.3, 3.1, 3.4, 3.6, 3.4, 3.7, 4.4, 4.3, // 1980s
     4.5, 4.3, 4.8, 5.0, 4.7, 4.8, 5.4, 5.7, 5.9, 6.2, // 1990s
     6.9, 7.0, 6.3, 6.5, 7.0, 7.4, 7.7, 8.5, 9.2, 9.6, // 2000s
-    10.8, 10.1, 11.2,
+    10.8, 10.1, 11.2
 ]
 
 var congressControl = ['D','D','D','D','M','M','M','M','M','M','D','D','D','D','D','D','D','D','R','R','R','R','R','R','R','R','R','R','R','R','D','D','D','D','M','M','M','M','R','R','R','R','M'];
 var presidencyControl = ['D','D','D','D','R','R','R','R','R','R','R','R','R','R','R','R','D','D','D','D','D','D','D','D','R','R','R','R','R','R','R','R','D','D','D','D','D','D','D','D','R','R','R'];
+
+var tableOfTaxes = document.getElementById("table of taxes")
+
+addRows();
 
 // https://stackoverflow.com/questions/2901102/how-to-print-a-number-with-commas-as-thousands-separators-in-javascript
 function numberWithCommas(x) {
@@ -115,7 +120,7 @@ function updateIncomeTaxInfo() {
         [[12200,0],[0,0],[9700,0.1],[29775, 0.12],[44725,0.22],[76525,0.24],[43375,0.32],[306200,0.35],[Number.MAX_SAFE_INTEGER,0.37]], // 2019
     ];
     var years = [];
-    var taxRates = [];
+    taxRates = [];
     for (i = 0; i < yearsTaxData.length; ++i) {
         let year = taxesStartYear + i;
         let taxRate = calculateTax((income * yearsDollarValue[i]), yearsTaxData[i]) / (income * yearsDollarValue[i]) * 100;
@@ -127,6 +132,7 @@ function updateIncomeTaxInfo() {
     } else {
         makePlot("incomeTaxGraph",taxRates,years,("Effective Tax Rate For Income Of " + numberWithCommas(income)));
     }
+    addRows();
     ++linesOnChart;
 }
 
@@ -171,7 +177,7 @@ function makePlot(elementID,data,labels,title) {
     incomeTaxLineChart = new Chart(document.getElementById(elementID),barChartData);
     graphRender.style.display = "block";
     document.getElementById("chart overlays").style.display = "block";
-
+    tableOfTaxes.style.display = "table";
 }
 
 function updatePlot(data, title) {
@@ -316,5 +322,193 @@ function toggleEconomicMeasure(data, measureName) {
         ++linesOnChart;
     }
     incomeTaxLineChart.update();
-};
+}
+
+function addRows() {
+    class PoliticalFigure {
+        constructor(numYears, imgUrl, name, isRepublican) {
+            this.numYears = numYears;
+            this.imgUrl = imgUrl;
+            this.name = name;
+            this.isRepublican = isRepublican;
+        }
+    }
+
+    // Presidents
+    var Carter = new PoliticalFigure(4,'https://www.whitehouse.gov/wp-content/uploads/2017/12/39_jimmy_carter.jpg','Jimmy Carter (1977-1980)',false);
+    var Reagan = new PoliticalFigure(8,'https://www.whitehouse.gov/wp-content/uploads/2017/12/40_ronald_reagan.jpg','Ronald Reagan (1981-1988)',true);
+    var BushSr = new PoliticalFigure(4,'https://www.whitehouse.gov/wp-content/uploads/2017/12/41_george_h_w_bush.jpg','George H. W. Bush (1989-1992)',true);
+    var Clinton = new PoliticalFigure(8,'https://www.whitehouse.gov/wp-content/uploads/2017/12/42_bill_clinton.jpg','Bill Clinton (1993-2000)',false);
+    var wBush = new PoliticalFigure(8,'https://www.whitehouse.gov/wp-content/uploads/2017/12/43_george_w_bush.jpg','George W. Bush (2001-2008)',true);
+    var Obama = new PoliticalFigure(8,'https://www.whitehouse.gov/wp-content/uploads/2017/12/44_barack_obama1.jpg','Barack Obama (2009-2016)',false);
+    var Trump = new PoliticalFigure(3,'https://d2v9ipibika81v.cloudfront.net/uploads/sites/25/2017/01/donaldtrump.png','Donald Trump (2017-)',true);
+    var presidentsInfo = [Carter, Reagan, BushSr, Clinton, wBush, Obama, Trump];
+    var presidentsCountDown = 0;
+
+    // Speakers of The house
+    var ONeill = new PoliticalFigure(10,'https://upload.wikimedia.org/wikipedia/commons/thumb/8/85/Tip_O%27Neill_1978.jpg/440px-Tip_O%27Neill_1978.jpg','Tip O\'Neill (1977-1986)',false);
+    var Wright = new PoliticalFigure(3,'https://upload.wikimedia.org/wikipedia/commons/thumb/4/4c/Speaker_Jim_Wright_of_Texas.jpg/1280px-Speaker_Jim_Wright_of_Texas.jpg','Jim Wright (1987-1989)',false);
+    var Foley = new PoliticalFigure(5,'https://upload.wikimedia.org/wikipedia/commons/2/2a/SpeakerFoley.jpg','Tom Foley (1990-1994)',false);
+    var Gingrich = new PoliticalFigure(4,'https://upload.wikimedia.org/wikipedia/commons/thumb/3/32/Newt_Gingrich_2019.jpg/440px-Newt_Gingrich_2019.jpg','Newt Gingrich (1995-1998)',true);
+    var Hastert = new PoliticalFigure(8,'https://upload.wikimedia.org/wikipedia/commons/9/9d/SpeakerHastert.jpg','Dennis Hastert (1999-2006)',true);
+    var Pelosi1 = new PoliticalFigure(4,'https://upload.wikimedia.org/wikipedia/commons/thumb/a/a5/Official_photo_of_Speaker_Nancy_Pelosi_in_2019.jpg/440px-Official_photo_of_Speaker_Nancy_Pelosi_in_2019.jpg','Nancy Pelosi (2007-2010)',false);
+    var Boehner = new PoliticalFigure(5,'https://upload.wikimedia.org/wikipedia/commons/thumb/7/7d/John_Boehner_official_portrait.jpg/440px-John_Boehner_official_portrait.jpg','John Boehner (2011-2015)',true);
+    var Ryan = new PoliticalFigure(3,'https://upload.wikimedia.org/wikipedia/commons/thumb/f/f7/Paul_Ryan_official_photo.jpg/440px-Paul_Ryan_official_photo.jpg','Paul Ryan (2016-2018)',true);
+    var Pelosi2019 = new PoliticalFigure(1,'https://upload.wikimedia.org/wikipedia/commons/thumb/a/a5/Official_photo_of_Speaker_Nancy_Pelosi_in_2019.jpg/440px-Official_photo_of_Speaker_Nancy_Pelosi_in_2019.jpg','Nancy Pelosi (2019)',false);
+    var speakersInfo = [ONeill, Wright, Foley, Gingrich, Hastert, Pelosi1, Boehner, Ryan, Pelosi2019];
+    var speakersCountDown = 0;
+
+    // Senate Majority Leader
+    var Byrd1 = new PoliticalFigure(4,'https://www.senate.gov/artandhistory/art/resources/graphic/xlarge/32_00052.jpg','Robert Byrd (1977-1980)',false);
+    var Baker = new PoliticalFigure(4,'https://www.senate.gov/artandhistory/art/resources/graphic/xlarge/32_00038.jpg','Howard Baker (1981-1984)',true);
+    var Dole1 = new PoliticalFigure(2,'https://www.senate.gov/artandhistory/art/resources/graphic/xlarge/32_00045.jpg','Bob Dole (1985-1986)',true);
+    var Byrd2 = new PoliticalFigure(2,'https://www.senate.gov/artandhistory/art/resources/graphic/xlarge/32_00052.jpg','Robert Byrd (1987-1988)',false);
+    var Mitchell = new PoliticalFigure(6,'https://www.senate.gov/artandhistory/history/resources/graphic/large/MitchellGeorge.jpg','George Mitchell (1989-1994)',false);
+    var Dole2 = new PoliticalFigure(2,'https://www.senate.gov/artandhistory/art/resources/graphic/xlarge/32_00045.jpg','Bob Dole (1995-1996)',true);
+    var Lott = new PoliticalFigure(4,'https://www.senate.gov/artandhistory/art/resources/graphic/xlarge/32_00062.jpg','Trent Lott (1997-2000)',true);
+    var Daschle = new PoliticalFigure(2,'http://bioguide.congress.gov/bioguide/photo/D/D000064.jpg','Andrew Daschle (2001-2002)',false);
+    var First = new PoliticalFigure(4,'http://bioguide.congress.gov/bioguide/photo/F/F000439.jpg','William First (2003-2006)',true);
+    var Reid = new PoliticalFigure(8,'http://bioguide.congress.gov/bioguide/photo/R/R000146.jpg','Harry Reid (2007-2014)',false);
+    var McConnell = new PoliticalFigure(5,'http://bioguide.congress.gov/bioguide/photo/M/M000355.jpg','Mitch McConnell (2015-2019)',true);
+    var senateInfo = [Byrd1, Baker, Dole1, Byrd2, Mitchell, Dole2, Lott, Daschle, First, Reid, McConnell];
+    var senateCountDown = 0;
+
+    class TaxLaw {
+        constructor(isLaw,articleLink,lawDescription) {
+            this.isLaw = isLaw;
+            this.articleLink = articleLink;
+            this.descript = lawDescription;
+        }
+    }
+    // Relevant Legislation
+    var relevantLegislation = [new TaxLaw(false,'',''), new TaxLaw(true,'https://www.nytimes.com/1978/11/09/archives/highlights-of-the-tax-law-signed-by-president-carter-individual.html','Revenue Act of 1978'), new TaxLaw(false,'',''), //1977-1979
+                new TaxLaw(false,'',''), new TaxLaw(true,'https://www.history.com/this-day-in-history/reagan-signs-economic-recovery-tax-act-erta','Economic Recovery Tax Act of 1981'), new TaxLaw(false,'',''), new TaxLaw(false,'',''), new TaxLaw(false,'',''), new TaxLaw(false,'',''), new TaxLaw(true,'https://www.nytimes.com/1986/10/23/business/tax-reform-act-1986-measure-came-together-tax-bill-for-textbooks.html','Tax Reform Act of 1986'), new TaxLaw(false,'',''), new TaxLaw(false,'',''), new TaxLaw(false,'',''), // 1980s
+                new TaxLaw(true,'https://www.taxpolicycenter.org/laws-proposals/major-enacted-tax-legislation-1990-1999#omnibus-budget-reconciliation-act-of-1990','Omnibus Budget Reconciliation Act of 1990'), new TaxLaw(false,'',''), new TaxLaw(false,'',''), new TaxLaw(true,'https://www.chicagotribune.com/news/ct-xpm-1993-09-26-9309260314-story.html','Omnibus Budget Reconciliation Act of 1993'), new TaxLaw(false,'',''), new TaxLaw(false,'',''), new TaxLaw(false,'',''), new TaxLaw(false,'',''), new TaxLaw(false,'',''), new TaxLaw(false,'',''), // 1990s
+                new TaxLaw(false,'',''), new TaxLaw(true,'https://www.cbpp.org/research/federal-tax/the-legacy-of-the-2001-and-2003-bush-tax-cuts','Economic Growth and Tax Relief Reconciliation Act of 2001'), new TaxLaw(false,'',''), new TaxLaw(true,'https://www.cbpp.org/research/federal-tax/the-legacy-of-the-2001-and-2003-bush-tax-cuts','Jobs and Growth Tax Relief Reconciliation Act of 2003'), new TaxLaw(false,'',''), new TaxLaw(false,'',''), new TaxLaw(false,'',''), new TaxLaw(false,'',''), new TaxLaw(false,'',''), new TaxLaw(true,'https://www.thebalance.com/arra-details-3306299','American Recovery and Reinvestment Act of 2009'), // 2000s
+                new TaxLaw(true,'https://obamawhitehouse.archives.gov/the-press-office/2010/12/10/tax-relief-unemployment-insurance-reauthorization-and-job-creation-act-2','Tax Relief, Unemployment Insurance Reauthorization, and Job Creation Act of 2010'), new TaxLaw(false,'',''), new TaxLaw(true,'https://www.taxpolicycenter.org/briefing-book/what-did-american-taxpayer-relief-act-2012-do','American Taxpayer Relief Act of 2012'), new TaxLaw(false,'',''), new TaxLaw(false,'',''), new TaxLaw(false,'',''), new TaxLaw(false,'',''), new TaxLaw(true,'https://www.nytimes.com/2018/12/27/us/politics/trump-tax-cuts-jobs-act.html','Tax Cuts and Jobs Act of 2017'), new TaxLaw(false,'',''), new TaxLaw(false,'','')  // 2010s
+            ]
+
+    for (var i = 1; i <= taxRates.length; i++) {
+        var rowToAdd = document.createElement('tr');   
+        
+        // Add presidents entries
+        if (presidentsCountDown == 0) {
+            var presidentEntry = document.createElement('td');
+            presidentEntry.colSpan = '3';
+            presidentEntry.rowSpan = presidentsInfo[presidentsInfo.length - 1].numYears;
+            presidentsCountDown = presidentsInfo[presidentsInfo.length - 1].numYears;
+            var presImage = document.createElement('img');
+            presImage.src = presidentsInfo[presidentsInfo.length-1].imgUrl;
+            presImage.style = 'margin-left: 5%; margin-right: 5%; margin-top: 4px; margin-bottom: 0; width: 90%;';
+            presidentEntry.appendChild(presImage);
+            var lineBreak = document.createElement('br');
+            presidentEntry.appendChild(lineBreak);
+            var text1 = document.createTextNode(presidentsInfo[presidentsInfo.length-1].name);
+            presidentEntry.appendChild(text1);
+            presidentEntry.style = 'background-color: rgb(10,10,200,0.8);';
+            if (presidentsInfo[presidentsInfo.length-1].isRepublican) {
+                presidentEntry.style = 'background-color: rgb(200,10,10,0.8);';
+            }
+            rowToAdd.appendChild(presidentEntry);
+            presidentsInfo.pop();
+        }
+        --presidentsCountDown;
+
+        // Add entries for speaker of the House of Representatives
+        if (speakersCountDown == 0) {
+            var speakerEntry = document.createElement('td');
+            speakerEntry.colSpan = '2';
+            speakerEntry.rowSpan = speakersInfo[speakersInfo.length - 1].numYears;
+            speakersCountDown = speakersInfo[speakersInfo.length - 1].numYears;
+            var speakImage = document.createElement('img');
+            speakImage.src = speakersInfo[speakersInfo.length-1].imgUrl;
+            speakImage.style = 'margin-left: 5%; margin-right: 1%; margin-top: 0; margin-bottom: 0; width: 44%; display: inline;';
+            speakerEntry.appendChild(speakImage);
+            var nameBox = document.createElement('div');
+            nameBox.style = 'width: 50%; display: inline-block;';
+            var speakerName = document.createTextNode(speakersInfo[speakersInfo.length-1].name);
+            nameBox.appendChild(speakerName);
+            speakerEntry.appendChild(nameBox);
+            speakerEntry.style = 'background-color: rgb(10,10,200,0.8);';
+            if (speakersInfo[speakersInfo.length-1].isRepublican) {
+                speakerEntry.style = 'background-color: rgb(200,10,10,0.8);';
+            }
+            rowToAdd.appendChild(speakerEntry);
+            speakersInfo.pop();
+        }
+        --speakersCountDown;
+
+        // Add entries for the Senate Majority Leader
+        if (senateCountDown == 0) {
+            var senateEntry = document.createElement('td');
+            senateEntry.colSpan = '2';
+            senateEntry.rowSpan = senateInfo[senateInfo.length - 1].numYears;
+            senateCountDown = senateInfo[senateInfo.length - 1].numYears;
+            var speakImage = document.createElement('img');
+            speakImage.src = senateInfo[senateInfo.length-1].imgUrl;
+            speakImage.style = 'margin-left: 5%; margin-right: 1%; margin-top: 0; margin-bottom: 0; width: 44%; display: inline;';
+            senateEntry.appendChild(speakImage);
+            var nameBox = document.createElement('div');
+            nameBox.style = 'width: 50%; display: inline-block;';
+            var senateName = document.createTextNode(senateInfo[senateInfo.length-1].name);
+            nameBox.appendChild(senateName);
+            senateEntry.appendChild(nameBox);
+            senateEntry.style = 'background-color: rgb(10,10,200,0.8);';
+            if (senateInfo[senateInfo.length-1].isRepublican) {
+                senateEntry.style = 'background-color: rgb(200,10,10,0.8);';
+            }
+            rowToAdd.appendChild(senateEntry);
+            senateInfo.pop();
+        }
+        --senateCountDown;
+
+        // Add tax rate
+        var taxRateCell = document.createElement('td');
+        var text1 = document.createTextNode(taxRates[taxRates.length-i] + '%');
+        taxRateCell.style = 'font-size: 22px;'
+        taxRateCell.appendChild(text1);
+        rowToAdd.appendChild(taxRateCell);
+
+        // Add tax rate change
+        var taxChangeCell = document.createElement('td');
+        if (i != taxRates.length) {
+            var taxChange = (taxRates[taxRates.length-i] - taxRates[taxRates.length-i-1]).toFixed(1);
+            var text1;
+            var backgroundStyle;
+            var taxChangeIntensity = 1200*Math.sqrt(Math.abs(Number(taxChange))/(200 + taxRates[taxRates.length-i]))
+            if (Math.sign(Number(taxChange)) == 1) {
+                backgroundStyle = 'background-color: rgba(255,0,0,' + taxChangeIntensity/39 + ');';
+                if ((taxChangeIntensity > 28) && (Number(taxChange) >= 10)) {
+                    text1 = document.createTextNode('+' + Number(taxChange).toFixed(0));
+                } else {
+                    text1 = document.createTextNode('+' + taxChange);
+                }
+            } else {
+                backgroundStyle = 'background-color: rgba(0,255,0,' + taxChangeIntensity/39 + ');';
+                if ((taxChangeIntensity > 28) && (Math.abs(Number(taxChange)) >= 10)) {
+                    text1 = document.createTextNode(Number(taxChange).toFixed(0));
+                } else {
+                    text1 = document.createTextNode(taxChange);
+                }
+            }
+            taxChangeCell.style = backgroundStyle + 'font-size: ' + taxChangeIntensity.toFixed(0) + 'px;';
+            taxChangeCell.appendChild(text1);
+        }
+        rowToAdd.appendChild(taxChangeCell);
+
+        // Add relevant legislation
+        var lawCell = document.createElement('td');
+        lawCell.colSpan = '3';
+        if (relevantLegislation[taxRates.length-i].isLaw) {
+            var lawLink = document.createElement('a');
+            lawLink.href = relevantLegislation[taxRates.length-i].articleLink;
+            linkText = document.createTextNode(relevantLegislation[taxRates.length-i].descript);
+            lawLink.appendChild(linkText);
+            lawCell.appendChild(lawLink);
+        }
+        rowToAdd.appendChild(lawCell);
+
+        tableOfTaxes.appendChild(rowToAdd);
+    }
+}
 

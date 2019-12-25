@@ -32,6 +32,11 @@
                 clear: both;
                 display: table;
             }
+            table, th, td {
+                border: 1px solid black;
+                border-collapse: collapse;
+                word-wrap: break-word;
+            }
         </style> 
     </head>
     <body>
@@ -55,7 +60,7 @@
                 <br>
             </div>
 
-            <canvas id = "incomeTaxGraph" width = "11" height = "5"></canvas>
+            <canvas id = "incomeTaxGraph" width = "11" height = "5" style="display: none;"></canvas>
 
             <br>
             <div id="chart overlays" class="clearfix" style="margin-left: 8px; display: none;">
@@ -78,6 +83,20 @@
                     </button>
                 </div>
             </div>
+            <table id="table of taxes" style="width: 100%; margin-top: 8px; table-layout: fixed; display: none;">
+                <tr>
+                    <th rowspan="2" colspan="3">President</th>
+                    <th colspan="4">Congress</th>
+                    <th colspan="2">Effective Tax</th>
+                    <th rowspan="2" colspan="3">Relevant Legislation</th>
+                </tr>
+                <tr>
+                    <th colspan="2">House</th>
+                    <th colspan="2">Senate</th>
+                    <th>Rate</th>
+                    <th>Change</th>
+                </tr>
+            </table>
         </div>
 
     </body>
