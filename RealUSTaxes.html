@@ -32,10 +32,15 @@
                 clear: both;
                 display: table;
             }
-            table, th, td {
+            table, td, th {
                 border: 1px solid black;
                 border-collapse: collapse;
                 word-wrap: break-word;
+            }
+            th {
+                position: sticky;
+                top: 0;
+                padding-top: 0;
             }
         </style> 
     </head>
@@ -52,10 +57,8 @@
                     To learn about how taxes have changed since 1977 enter an income below too see a graph of the effective
                     tax rate on that income level. To compare multiple income levels just add more.
                 </p>
-                <form id="incomeReader" name="incomeReader" action="" method="POST" enctype="application/x-www-form-urlencoded" style="display: inline;">
-                    <strong>Income in thousands of 2019 dollars: </strong>
-                    <input type="number" name="income" id="income">,000
-                </form>
+                <strong>Income in thousands of 2019 dollars: </strong>
+                <input type="number" name="income" id="income">,000
                 <button id="Add To Plot" onclick="updateIncomeTaxInfo()">Add</button>
                 <br>
             </div>
@@ -85,16 +88,23 @@
             </div>
             <table id="table of taxes" style="width: 100%; margin-top: 8px; table-layout: fixed; display: none;">
                 <tr>
-                    <th rowspan="2" colspan="3">President</th>
-                    <th colspan="4">Congress</th>
-                    <th colspan="2">Effective Tax</th>
-                    <th rowspan="2" colspan="3">Relevant Legislation</th>
-                </tr>
-                <tr>
-                    <th colspan="2">House</th>
-                    <th colspan="2">Senate</th>
-                    <th>Rate</th>
-                    <th>Change</th>
+                    <th colspan="12" style="padding: 0; background-color: rgba(211, 211, 211, 0.95);">
+                        <table style="width: 100%; table-layout: fixed;">
+                            <tr>
+                                <th rowspan="2" colspan="3">President</th>
+                                <th colspan="4">Congress</th>
+                                <th colspan="3">Effective Tax</th>
+                                <th rowspan="2" colspan="2">Relevant Legislation</th>
+                            </tr>
+                            <tr>
+                                <th colspan="2">House</th>
+                                <th colspan="2">Senate</th>
+                                <th>Rate</th>
+                                <th>Change</th>
+                                <th>Relative Change</th>
+                            </tr>
+                        </table>
+                    </th>
                 </tr>
             </table>
         </div>

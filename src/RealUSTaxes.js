@@ -35,6 +35,7 @@ var realMedHouseIncome = [];
 for (i = 0; i < nominalMedHouseIncome.length; ++i) {
     realMedHouseIncome.push((nominalMedHouseIncome[i]/yearsDollarValue[i]).toFixed(0));
 }
+
 // data from: Table B1 online appendix Saez & Zucman (2016) Wealth Inequality in the United States since 1913
 var percentWealthInTop = [
     2.3, 2.2, 2.6, // 1977-1979
@@ -42,14 +43,18 @@ var percentWealthInTop = [
     4.5, 4.3, 4.8, 5.0, 4.7, 4.8, 5.4, 5.7, 5.9, 6.2, // 1990s
     6.9, 7.0, 6.3, 6.5, 7.0, 7.4, 7.7, 8.5, 9.2, 9.6, // 2000s
     10.8, 10.1, 11.2
-]
+];
+
+var relativeTaxChangeRatio = [1,1.015703401,1.112269614, // 1977-1979
+    1.044830259,1.027625046,0.9821001708,0.9041483649,0.9164113226,1.045784991,0.9875307045,1.054636759,0.9342370696,1.044570974, // 1980s
+    0.9962144158,0.9700377713,0.9596572166,1.022864856,0.9972510256,1.029094326,1.046530764,1.048485691,1.052739692,1.003150079, // 1990s
+    1.071839443,0.9588997741,0.8380505717,0.886006733,0.9568647623,1.074879771,1.053274436,1.085320252,0.9809424988,0.8116269167, // 2000s
+    0.9345499803,1.160007548,0.9837554408,1.132306819,1,1,1,1,1,1];
 
 var congressControl = ['D','D','D','D','M','M','M','M','M','M','D','D','D','D','D','D','D','D','R','R','R','R','R','R','R','R','R','R','R','R','D','D','D','D','M','M','M','M','R','R','R','R','M'];
 var presidencyControl = ['D','D','D','D','R','R','R','R','R','R','R','R','R','R','R','R','D','D','D','D','D','D','D','D','R','R','R','R','R','R','R','R','D','D','D','D','D','D','D','D','R','R','R'];
 
 var tableOfTaxes = document.getElementById("table of taxes")
-
-addRows();
 
 // https://stackoverflow.com/questions/2901102/how-to-print-a-number-with-commas-as-thousands-separators-in-javascript
 function numberWithCommas(x) {
@@ -67,7 +72,7 @@ function calculateTax(income, taxBracketsData) {
 }
 
 function updateIncomeTaxInfo() {
-    var income = document.incomeReader.income.value * 1000;
+    var income = document.getElementById('income').value * 1000;
     var taxesStartYear = 1977;
     // personal exemptions: https://www.taxpolicycenter.org/sites/default/files/legacy/taxfacts/content/pdf/historical_parameters.pdf
     // tax brackets: https://taxfoundation.org/us-federal-individual-income-tax-rates-history-1913-2013-nominal-and-inflation-adjusted-brackets/
@@ -132,7 +137,11 @@ function updateIncomeTaxInfo() {
     } else {
         makePlot("incomeTaxGraph",taxRates,years,("Effective Tax Rate For Income Of " + numberWithCommas(income)));
     }
-    addRows();
+    while (tableOfTaxes.rows.length > 1) {
+        tableOfTaxes.deleteRow(1);
+    }
+    addRows('');
+
     ++linesOnChart;
 }
 
@@ -324,13 +333,55 @@ function toggleEconomicMeasure(data, measureName) {
     incomeTaxLineChart.update();
 }
 
-function addRows() {
+class PoliticalFigure {
+    constructor(numYears, imgUrl, name, isRepublican) {
+        this.numYears = numYears;
+        this.imgUrl = imgUrl;
+        this.name = name;
+        this.isRepublican = isRepublican;
+        this.taxChange = 0;
+        this.relativeChange = 0;
+    }
+}
+
+// Presidents
+var presidentsInfo = [];
+var addedPresidents = [];
+
+// Speakers of The house
+var speakersInfo = [];
+var addedSpeakers = [];
+
+// Senate Majority Leader
+var senateInfo = [];
+var addedSenate = [];
+
+function addRows(politicianName) {
+
     class PoliticalFigure {
         constructor(numYears, imgUrl, name, isRepublican) {
             this.numYears = numYears;
             this.imgUrl = imgUrl;
             this.name = name;
             this.isRepublican = isRepublican;
+            this.taxChange = 0;
+            this.relativeChange = 0;
+        }
+    }
+
+    var politicianTaxChange = 0;
+    var politicianRelativeChange = 0;
+
+    for (president of addedPresidents) {
+        if (president.name == politicianName) {
+            politicianTaxChange = Number(president.taxChange.toFixed(1));
+            if (Math.abs(politicianTaxChange) > 10) {
+                politicianTaxChange = politicianTaxChange.toFixed(0);
+            }
+            politicianRelativeChange = Number(president.relativeChange.toFixed(1));
+            if (Math.abs(politicianRelativeChange) > 10) {
+                politicianRelativeChange = politicianRelativeChange.toFixed(0);
+            }
         }
     }
 
@@ -342,8 +393,8 @@ function addRows() {
     var wBush = new PoliticalFigure(8,'https://www.whitehouse.gov/wp-content/uploads/2017/12/43_george_w_bush.jpg','George W. Bush (2001-2008)',true);
     var Obama = new PoliticalFigure(8,'https://www.whitehouse.gov/wp-content/uploads/2017/12/44_barack_obama1.jpg','Barack Obama (2009-2016)',false);
     var Trump = new PoliticalFigure(3,'https://d2v9ipibika81v.cloudfront.net/uploads/sites/25/2017/01/donaldtrump.png','Donald Trump (2017-)',true);
-    var presidentsInfo = [Carter, Reagan, BushSr, Clinton, wBush, Obama, Trump];
-    var presidentsCountDown = 0;
+    presidentsInfo = [Carter, Reagan, BushSr, Clinton, wBush, Obama, Trump];
+    addedPresidents = [];
 
     // Speakers of The house
     var ONeill = new PoliticalFigure(10,'https://upload.wikimedia.org/wikipedia/commons/thumb/8/85/Tip_O%27Neill_1978.jpg/440px-Tip_O%27Neill_1978.jpg','Tip O\'Neill (1977-1986)',false);
@@ -355,8 +406,8 @@ function addRows() {
     var Boehner = new PoliticalFigure(5,'https://upload.wikimedia.org/wikipedia/commons/thumb/7/7d/John_Boehner_official_portrait.jpg/440px-John_Boehner_official_portrait.jpg','John Boehner (2011-2015)',true);
     var Ryan = new PoliticalFigure(3,'https://upload.wikimedia.org/wikipedia/commons/thumb/f/f7/Paul_Ryan_official_photo.jpg/440px-Paul_Ryan_official_photo.jpg','Paul Ryan (2016-2018)',true);
     var Pelosi2019 = new PoliticalFigure(1,'https://upload.wikimedia.org/wikipedia/commons/thumb/a/a5/Official_photo_of_Speaker_Nancy_Pelosi_in_2019.jpg/440px-Official_photo_of_Speaker_Nancy_Pelosi_in_2019.jpg','Nancy Pelosi (2019)',false);
-    var speakersInfo = [ONeill, Wright, Foley, Gingrich, Hastert, Pelosi1, Boehner, Ryan, Pelosi2019];
-    var speakersCountDown = 0;
+    speakersInfo = [ONeill, Wright, Foley, Gingrich, Hastert, Pelosi1, Boehner, Ryan, Pelosi2019];
+    addedSpeakers = [];
 
     // Senate Majority Leader
     var Byrd1 = new PoliticalFigure(4,'https://www.senate.gov/artandhistory/art/resources/graphic/xlarge/32_00052.jpg','Robert Byrd (1977-1980)',false);
@@ -370,7 +421,11 @@ function addRows() {
     var First = new PoliticalFigure(4,'http://bioguide.congress.gov/bioguide/photo/F/F000439.jpg','William First (2003-2006)',true);
     var Reid = new PoliticalFigure(8,'http://bioguide.congress.gov/bioguide/photo/R/R000146.jpg','Harry Reid (2007-2014)',false);
     var McConnell = new PoliticalFigure(5,'http://bioguide.congress.gov/bioguide/photo/M/M000355.jpg','Mitch McConnell (2015-2019)',true);
-    var senateInfo = [Byrd1, Baker, Dole1, Byrd2, Mitchell, Dole2, Lott, Daschle, First, Reid, McConnell];
+    senateInfo = [Byrd1, Baker, Dole1, Byrd2, Mitchell, Dole2, Lott, Daschle, First, Reid, McConnell];
+    addedSenate = [];
+
+    var presidentsCountDown = 0;
+    var speakersCountDown = 0;
     var senateCountDown = 0;
 
     class TaxLaw {
@@ -400,6 +455,11 @@ function addRows() {
             var presImage = document.createElement('img');
             presImage.src = presidentsInfo[presidentsInfo.length-1].imgUrl;
             presImage.style = 'margin-left: 5%; margin-right: 5%; margin-top: 4px; margin-bottom: 0; width: 90%;';
+            if (politicianName == presidentsInfo[presidentsInfo.length-1].name) {
+                presImage.setAttribute('onclick',  "changeTable('')");
+            } else {
+                presImage.setAttribute('onclick',  "changeTable('" + presidentsInfo[presidentsInfo.length-1].name + "')");
+            }
             presidentEntry.appendChild(presImage);
             var lineBreak = document.createElement('br');
             presidentEntry.appendChild(lineBreak);
@@ -410,7 +470,7 @@ function addRows() {
                 presidentEntry.style = 'background-color: rgb(200,10,10,0.8);';
             }
             rowToAdd.appendChild(presidentEntry);
-            presidentsInfo.pop();
+            addedPresidents.push(presidentsInfo.pop());
         }
         --presidentsCountDown;
 
@@ -464,41 +524,104 @@ function addRows() {
 
         // Add tax rate
         var taxRateCell = document.createElement('td');
-        var text1 = document.createTextNode(taxRates[taxRates.length-i] + '%');
+        var text = document.createTextNode(taxRates[taxRates.length-i] + '%');
         taxRateCell.style = 'font-size: 22px;'
-        taxRateCell.appendChild(text1);
+        taxRateCell.appendChild(text);
         rowToAdd.appendChild(taxRateCell);
 
         // Add tax rate change
         var taxChangeCell = document.createElement('td');
-        if (i != taxRates.length) {
+        var text1;
+        var needToAdd = true;
+        if (addedPresidents[addedPresidents.length-1].name == politicianName) {
+            if (presidentsCountDown == (addedPresidents[addedPresidents.length - 1].numYears-1)) {
+                taxChangeCell.rowSpan = addedPresidents[addedPresidents.length-1].numYears;
+                if (politicianTaxChange > 0) {
+                    text1 = document.createTextNode('+' + politicianTaxChange);
+                } else {
+                    text1 = document.createTextNode(politicianTaxChange);
+                }
+                taxChangeCell.style = 'font-size: 50px;'
+            } else {
+                needToAdd = false;
+            }
+        } else if (i != taxRates.length) {
             var taxChange = (taxRates[taxRates.length-i] - taxRates[taxRates.length-i-1]).toFixed(1);
-            var text1;
+            addedPresidents[addedPresidents.length-1].taxChange += Number(taxChange);
             var backgroundStyle;
-            var taxChangeIntensity = 1200*Math.sqrt(Math.abs(Number(taxChange))/(200 + taxRates[taxRates.length-i]))
+            var taxChangeIntensity = Math.pow(Math.pow(Math.pow((taxRates[taxRates.length-i] - taxRates[taxRates.length-i-1]),4),0.4)/(Number(taxRates[taxRates.length-i]) + Number(taxRates[taxRates.length-i-1])),0.25);
             if (Math.sign(Number(taxChange)) == 1) {
-                backgroundStyle = 'background-color: rgba(255,0,0,' + taxChangeIntensity/39 + ');';
-                if ((taxChangeIntensity > 28) && (Number(taxChange) >= 10)) {
+                backgroundStyle = 'background-color: rgba(255,0,0,' + taxChangeIntensity*taxChangeIntensity + ');';
+                if ((40*taxChangeIntensity > 29) && (Number(taxChange) >= 10)) {
                     text1 = document.createTextNode('+' + Number(taxChange).toFixed(0));
                 } else {
                     text1 = document.createTextNode('+' + taxChange);
                 }
             } else {
-                backgroundStyle = 'background-color: rgba(0,255,0,' + taxChangeIntensity/39 + ');';
-                if ((taxChangeIntensity > 28) && (Math.abs(Number(taxChange)) >= 10)) {
+                backgroundStyle = 'background-color: rgba(0,255,0,' + taxChangeIntensity*taxChangeIntensity + ');';
+                if ((40*taxChangeIntensity > 29) && (Math.abs(Number(taxChange)) >= 10)) {
                     text1 = document.createTextNode(Number(taxChange).toFixed(0));
                 } else {
                     text1 = document.createTextNode(taxChange);
                 }
             }
-            taxChangeCell.style = backgroundStyle + 'font-size: ' + taxChangeIntensity.toFixed(0) + 'px;';
-            taxChangeCell.appendChild(text1);
+            taxChangeCell.style = backgroundStyle + 'font-size: ' + (40*taxChangeIntensity).toFixed(0) + 'px;';
+        } else {
+            text1 = document.createTextNode('No Data');
         }
-        rowToAdd.appendChild(taxChangeCell);
+        if (needToAdd) {
+            taxChangeCell.appendChild(text1);
+            rowToAdd.appendChild(taxChangeCell);
+        }
+
+        // Add relative tax rate change
+        var relativeTaxChangeCell = document.createElement('td');
+        var text2;
+        var needToAdd2 = true;
+        if (addedPresidents[addedPresidents.length-1].name == politicianName) {
+            if (presidentsCountDown == (addedPresidents[addedPresidents.length - 1].numYears-1)) {
+                relativeTaxChangeCell.rowSpan = addedPresidents[addedPresidents.length-1].numYears;
+                if (politicianRelativeChange > 0) {
+                    text2 = document.createTextNode('+' + politicianRelativeChange);
+                } else {
+                    text2 = document.createTextNode(politicianRelativeChange);
+                }
+                relativeTaxChangeCell.style = 'font-size: 50px;'
+            } else {
+                needToAdd2 = false;
+            }
+        } else if (i != taxRates.length && i > 6) {
+            var taxChange = (taxRates[taxRates.length-i] - taxRates[taxRates.length-i-1]*relativeTaxChangeRatio[relativeTaxChangeRatio.length - i]).toFixed(1);
+            addedPresidents[addedPresidents.length-1].relativeChange += Number(taxChange);
+            var backgroundStyle;
+            var taxChangeIntensity = Math.pow(Math.pow(Math.pow((taxChange),4),0.4)/(Number(taxRates[taxRates.length-i]) + Number(taxRates[taxRates.length-i-1]*relativeTaxChangeRatio[relativeTaxChangeRatio.length - i])),0.25);
+            if (Math.sign(Number(taxChange)) == 1) {
+                backgroundStyle = 'background-color: rgba(255,0,0,' + taxChangeIntensity*taxChangeIntensity + ');';
+                if ((40*taxChangeIntensity > 29) && (Number(taxChange) >= 10)) {
+                    text2 = document.createTextNode('+' + Number(taxChange).toFixed(0));
+                } else {
+                    text2 = document.createTextNode('+' + taxChange);
+                }
+            } else {
+                backgroundStyle = 'background-color: rgba(0,255,0,' + taxChangeIntensity*taxChangeIntensity + ');';
+                if ((40*taxChangeIntensity > 29) && (Math.abs(Number(taxChange)) >= 10)) {
+                    text2 = document.createTextNode(Number(taxChange).toFixed(0));
+                } else {
+                    text2 = document.createTextNode(taxChange);
+                }
+            }
+            relativeTaxChangeCell.style = backgroundStyle + 'font-size: ' + (40*taxChangeIntensity).toFixed(0) + 'px;';
+        } else {
+            text2 = document.createTextNode('No Data');
+        }
+        if (needToAdd2) {
+            relativeTaxChangeCell.appendChild(text2);
+            rowToAdd.appendChild(relativeTaxChangeCell);
+        }
 
         // Add relevant legislation
         var lawCell = document.createElement('td');
-        lawCell.colSpan = '3';
+        lawCell.colSpan = '2';
         if (relevantLegislation[taxRates.length-i].isLaw) {
             var lawLink = document.createElement('a');
             lawLink.href = relevantLegislation[taxRates.length-i].articleLink;
@@ -511,4 +634,12 @@ function addRows() {
         tableOfTaxes.appendChild(rowToAdd);
     }
 }
+
+function changeTable(politicianName) {
+    while (tableOfTaxes.rows.length > 1) {
+        tableOfTaxes.deleteRow(1);
+    }
+    addRows(politicianName);
+    return false;
+};
 
