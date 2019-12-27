@@ -6,7 +6,7 @@ var taxRates = [];
 
 var yearsDollarValue = [0.2267,0.2413,0.2597,0.2890,0.3280,0.3620,0.3843,0.3965,0.4138,0.4284,0.437,0.452,0.471,0.493,0.520,0.542,0.559,0.575,0.590,0.607,0.625,0.639,0.649,0.663,0.686,0.705,0.716,0.733,0.752,0.778,0.803,0.826,0.857,0.854,0.869,0.896,0.914,0.928,0.943,0.944,0.956,0.976,1];
 
-var possibleNames = ['Deficit to GDP Ratio','Inflation Rate','Median Household Income','% Wealth in top 0.01%']
+var possibleNames = ['Deficit to GDP Ratio','Inflation Rate','Median Household Income','% Wealth in top 0.01%','Overall Tax Rate']
 // data from: https://www.thebalance.com/us-deficit-by-year-3306306
 var deficitToGDPData = [
     2.5, 2.5, 1.5, // 1977 - 1979
@@ -47,8 +47,9 @@ var percentWealthInTop = [
 
 // Net national income data from: https://tradingeconomics.com/united-states/adjusted-net-national-income-us-dollar-wb-data.html
 // Income tax revenue data from: https://www.cbo.gov/sites/default/files/cbofiles/attachments/45010-breakout-AppendixH.pdf
-// Overall_Tax_Rate = (Income tax revenue)/(Net national income)
-// relativeTaxChangeRatio = Overall_Tax_Rate-Current-Year/Overall_Tax_Rate-Previous Year
+// overallTaxRate = (Income tax revenue)/(Net national income)
+var overallTaxRate = [8.97,9.11,10.13,10.59,10.88,10.68,9.66,8.85,9.26,9.14,9.64,9.01,9.41,9.37,9.09,8.73,8.92,8.90,9.16,9.59,10.05,10.58,10.61,11.38,10.91,9.14,8.10,7.75,8.33,8.77,9.52,9.34,7.58,7.09,8.22,8.09,9.16,9.26,9.80,9.64,9.54,9.66];
+// relativeTaxChangeRatio = overallTaxRate-Current-Year / overallTaxRate-Previous Year
 var relativeTaxChangeRatio = [1,1.015703401,1.112269614, // 1977-1979
     1.044830259,1.027625046,0.9821001708,0.9041483649,0.9164113226,1.045784991,0.9875307045,1.054636759,0.9342370696,1.044570974, // 1980s
     0.9962144158,0.9700377713,0.9596572166,1.022864856,0.9972510256,1.029094326,1.046530764,1.048485691,1.052739692,1.003150079, // 1990s
@@ -163,7 +164,7 @@ function makePlot(elementID,data,labels,title) {
                 borderColor: 'black',
                 pointRadius: 1,
                 lineTension: 0,
-                yAxisID: "line-notStacked",
+                yAxisID: "Overall Tax Rate",
                 order: data[0]
                 }]
             },
@@ -175,7 +176,7 @@ function makePlot(elementID,data,labels,title) {
             }}},
             title: {display:true, text:"Effective Income Tax History"},
             responsive:true,
-            scales: {yAxes: [{id: "line-notStacked", ticks: {beginAtZero:true,  suggestedMax: 70}, stacked: false}, 
+            scales: {yAxes: [{id: "Overall Tax Rate", ticks: {beginAtZero:true,  suggestedMax: 70}, stacked: false}, 
                             {id: "bar-stacked", ticks: {beginAtZero:true,  suggestedMax: 70}, stacked: true, display: false},
                             {id: possibleNames[0], stacked: false, display: false},
                             {id: possibleNames[1], stacked: false, display: false},
@@ -204,7 +205,7 @@ function updatePlot(data, title) {
         borderColor: 'black',
         pointRadius: 1,
         lineTension: 0,
-        yAxisID: "line-notStacked",
+        yAxisID: "Overall Tax Rate",
         order: data[0]
     }
     incomeTaxLineChart.data.datasets.push(newData);
@@ -389,6 +390,32 @@ function addRows(politicianName) {
         }
     }
 
+    for (speaker of addedSpeakers) {
+        if (speaker.name == politicianName) {
+            politicianTaxChange = Number(speaker.taxChange.toFixed(1));
+            if (Math.abs(politicianTaxChange) > 10) {
+                politicianTaxChange = politicianTaxChange.toFixed(0);
+            }
+            politicianRelativeChange = Number(speaker.relativeChange.toFixed(1));
+            if (Math.abs(politicianRelativeChange) > 10) {
+                politicianRelativeChange = politicianRelativeChange.toFixed(0);
+            }
+        }
+    }
+
+    for (senateMaj of addedSenate) {
+        if (senateMaj.name == politicianName) {
+            politicianTaxChange = Number(senateMaj.taxChange.toFixed(1));
+            if (Math.abs(politicianTaxChange) > 10) {
+                politicianTaxChange = politicianTaxChange.toFixed(0);
+            }
+            politicianRelativeChange = Number(senateMaj.relativeChange.toFixed(1));
+            if (Math.abs(politicianRelativeChange) > 10) {
+                politicianRelativeChange = politicianRelativeChange.toFixed(0);
+            }
+        }
+    }
+
     // Presidents
     var Carter = new PoliticalFigure(4,'https://www.whitehouse.gov/wp-content/uploads/2017/12/39_jimmy_carter.jpg','Jimmy Carter (1977-1980)',false);
     var Reagan = new PoliticalFigure(8,'https://www.whitehouse.gov/wp-content/uploads/2017/12/40_ronald_reagan.jpg','Ronald Reagan (1981-1988)',true);
@@ -401,7 +428,7 @@ function addRows(politicianName) {
     addedPresidents = [];
 
     // Speakers of The house
-    var ONeill = new PoliticalFigure(10,'https://upload.wikimedia.org/wikipedia/commons/thumb/8/85/Tip_O%27Neill_1978.jpg/440px-Tip_O%27Neill_1978.jpg','Tip O\'Neill (1977-1986)',false);
+    var ONeill = new PoliticalFigure(10,'https://upload.wikimedia.org/wikipedia/commons/thumb/8/85/Tip_O%27Neill_1978.jpg/440px-Tip_O%27Neill_1978.jpg','Tip ONeill (1977-1986)',false);
     var Wright = new PoliticalFigure(3,'https://upload.wikimedia.org/wikipedia/commons/thumb/4/4c/Speaker_Jim_Wright_of_Texas.jpg/1280px-Speaker_Jim_Wright_of_Texas.jpg','Jim Wright (1987-1989)',false);
     var Foley = new PoliticalFigure(5,'https://upload.wikimedia.org/wikipedia/commons/2/2a/SpeakerFoley.jpg','Tom Foley (1990-1994)',false);
     var Gingrich = new PoliticalFigure(4,'https://upload.wikimedia.org/wikipedia/commons/thumb/3/32/Newt_Gingrich_2019.jpg/440px-Newt_Gingrich_2019.jpg','Newt Gingrich (1995-1998)',true);
@@ -487,6 +514,11 @@ function addRows(politicianName) {
             var speakImage = document.createElement('img');
             speakImage.src = speakersInfo[speakersInfo.length-1].imgUrl;
             speakImage.style = 'margin-left: 1%; margin-right: 1%; margin-top: 0; margin-bottom: 0; width: 44%; display: inline;';
+            if (politicianName == speakersInfo[speakersInfo.length-1].name) {
+                speakImage.setAttribute('onclick',  "changeTable('')");
+            } else {
+                speakImage.setAttribute('onclick',  "changeTable('" + speakersInfo[speakersInfo.length-1].name + "')");
+            }
             speakerEntry.appendChild(speakImage);
             var nameBox = document.createElement('div');
             nameBox.style = 'width: 54%; display: inline-block;';
@@ -498,7 +530,7 @@ function addRows(politicianName) {
                 speakerEntry.style = 'background-color: rgb(200,10,10,0.8);';
             }
             rowToAdd.appendChild(speakerEntry);
-            speakersInfo.pop();
+            addedSpeakers.push(speakersInfo.pop());
         }
         --speakersCountDown;
 
@@ -508,10 +540,15 @@ function addRows(politicianName) {
             senateEntry.colSpan = '12';
             senateEntry.rowSpan = senateInfo[senateInfo.length - 1].numYears;
             senateCountDown = senateInfo[senateInfo.length - 1].numYears;
-            var speakImage = document.createElement('img');
-            speakImage.src = senateInfo[senateInfo.length-1].imgUrl;
-            speakImage.style = 'margin-left: 1%; margin-right: 1%; margin-top: 0; margin-bottom: 0; width: 44%; display: inline;';
-            senateEntry.appendChild(speakImage);
+            var senImage = document.createElement('img');
+            senImage.src = senateInfo[senateInfo.length-1].imgUrl;
+            senImage.style = 'margin-left: 1%; margin-right: 1%; margin-top: 0; margin-bottom: 0; width: 44%; display: inline;';
+            if (politicianName == senateInfo[senateInfo.length-1].name) {
+                senImage.setAttribute('onclick',  "changeTable('')");
+            } else {
+                senImage.setAttribute('onclick',  "changeTable('" + senateInfo[senateInfo.length-1].name + "')");
+            }
+            senateEntry.appendChild(senImage);
             var nameBox = document.createElement('div');
             nameBox.style = 'width: 54%; display: inline-block;';
             var senateName = document.createTextNode(senateInfo[senateInfo.length-1].name);
@@ -522,7 +559,7 @@ function addRows(politicianName) {
                 senateEntry.style = 'background-color: rgb(200,10,10,0.8);';
             }
             rowToAdd.appendChild(senateEntry);
-            senateInfo.pop();
+            addedSenate.push(senateInfo.pop());
         }
         --senateCountDown;
 
@@ -551,9 +588,35 @@ function addRows(politicianName) {
             } else {
                 needToAdd = false;
             }
+        } else if (addedSpeakers[addedSpeakers.length-1].name == politicianName) {
+            if (speakersCountDown == (addedSpeakers[addedSpeakers.length - 1].numYears-1)) {
+                taxChangeCell.rowSpan = addedSpeakers[addedSpeakers.length-1].numYears;
+                if (politicianTaxChange > 0) {
+                    text1 = document.createTextNode('+' + politicianTaxChange);
+                } else {
+                    text1 = document.createTextNode(politicianTaxChange);
+                }
+                taxChangeCell.style = 'font-size: 40px;'
+            } else {
+                needToAdd = false;
+            }
+        } else if (addedSenate[addedSenate.length-1].name == politicianName) {
+            if (senateCountDown == (addedSenate[addedSenate.length - 1].numYears-1)) {
+                taxChangeCell.rowSpan = addedSenate[addedSenate.length-1].numYears;
+                if (politicianTaxChange > 0) {
+                    text1 = document.createTextNode('+' + politicianTaxChange);
+                } else {
+                    text1 = document.createTextNode(politicianTaxChange);
+                }
+                taxChangeCell.style = 'font-size: 40px;'
+            } else {
+                needToAdd = false;
+            }
         } else if (i != taxRates.length) {
             var taxChange = (taxRates[taxRates.length-i] - taxRates[taxRates.length-i-1]).toFixed(1);
             addedPresidents[addedPresidents.length-1].taxChange += Number(taxChange);
+            addedSpeakers[addedSpeakers.length-1].taxChange += Number(taxChange);
+            addedSenate[addedSenate.length-1].taxChange += Number(taxChange);
             var backgroundStyle;
             var taxChangeIntensity = Math.pow(Math.pow(Math.pow((taxRates[taxRates.length-i] - taxRates[taxRates.length-i-1]),4),0.4)/(Number(taxRates[taxRates.length-i]) + Number(taxRates[taxRates.length-i-1])),0.25);
             if (Math.sign(Number(taxChange)) == 1) {
@@ -597,9 +660,35 @@ function addRows(politicianName) {
             } else {
                 needToAdd2 = false;
             }
+        } else if (addedSpeakers[addedSpeakers.length-1].name == politicianName) {
+            if (speakersCountDown == (addedSpeakers[addedSpeakers.length - 1].numYears-1)) {
+                relativeTaxChangeCell.rowSpan = addedSpeakers[addedSpeakers.length-1].numYears;
+                if (politicianRelativeChange > 0) {
+                    text2 = document.createTextNode('+' + politicianRelativeChange);
+                } else {
+                    text2 = document.createTextNode(politicianRelativeChange);
+                }
+                relativeTaxChangeCell.style = 'font-size: 40px;'
+            } else {
+                needToAdd2 = false;
+            }
+        } else if (addedSenate[addedSenate.length-1].name == politicianName) {
+            if (senateCountDown == (addedSenate[addedSenate.length - 1].numYears-1)) {
+                relativeTaxChangeCell.rowSpan = addedSenate[addedSenate.length-1].numYears;
+                if (politicianRelativeChange > 0) {
+                    text2 = document.createTextNode('+' + politicianRelativeChange);
+                } else {
+                    text2 = document.createTextNode(politicianRelativeChange);
+                }
+                relativeTaxChangeCell.style = 'font-size: 40px;'
+            } else {
+                needToAdd2 = false;
+            }
         } else if (i != taxRates.length && i != 1) {
             var taxChange = (taxRates[taxRates.length-i] - taxRates[taxRates.length-i-1]*relativeTaxChangeRatio[relativeTaxChangeRatio.length - i]).toFixed(1);
             addedPresidents[addedPresidents.length-1].relativeChange += Number(taxChange);
+            addedSpeakers[addedSpeakers.length-1].relativeChange += Number(taxChange);
+            addedSenate[addedSenate.length-1].relativeChange += Number(taxChange);
             var backgroundStyle;
             var taxChangeIntensity = Math.pow(Math.pow(Math.pow((taxChange),4),0.4)/(Number(taxRates[taxRates.length-i]) + Number(taxRates[taxRates.length-i-1]*relativeTaxChangeRatio[relativeTaxChangeRatio.length - i])),0.25);
             if (Math.sign(Number(taxChange)) == 1) {
@@ -643,6 +732,7 @@ function addRows(politicianName) {
 }
 
 function changeTable(politicianName) {
+    addRows('');
     while (tableOfTaxes.rows.length > 1) {
         tableOfTaxes.deleteRow(1);
     }
